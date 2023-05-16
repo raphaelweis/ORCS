@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import WebGL from 'three/addons/capabilities/WebGL.js';
+import * as UTILS from "./functions";
 
 // creating a scene, a camera and a renderer and setting the correct parameters
 const scene = new THREE.Scene();
@@ -18,56 +19,40 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.update();
 
 // creating a cube and adding it to the scene - the cube is made of a geometry, material and mesh to bind the two
-function newCublet() {
-	const colors = [
-		"white",
-		"green",
-		"red",
-		"blue",
-		"orange",
-		"yellow"
-	]
-	const geometry = new THREE.BoxGeometry(1, 1, 1);
+const cublet1 = UTILS.newCublet();
+const cublet2 = UTILS.newCublet();
+const cublet3 = UTILS.newCublet();
+cublet1.position.set(0, 0, 0);
+cublet2.position.set(1.1, 0, 0);
+cublet3.position.set(-1.1, 0, 0);
 
-	const face1Mesh = new THREE.MeshBasicMaterial({color: colors[0]});
-	const face2Mesh = new THREE.MeshBasicMaterial({color: colors[1]});
-	const face3Mesh = new THREE.MeshBasicMaterial({color: colors[2]});
-	const face4Mesh = new THREE.MeshBasicMaterial({color: colors[3]});
-	const face5Mesh = new THREE.MeshBasicMaterial({color: colors[4]});
-	const face6Mesh = new THREE.MeshBasicMaterial({color: colors[5]});
+let group1 = new THREE.Group();
+group1.add(cublet1);
+group1.add(cublet2);
+group1.add(cublet3);
 
-	geometry.groups.push({start: 0, count: 2, materialIndex: 0});
-	geometry.groups.push({start: 2, count: 2, materialIndex: 1});
-	geometry.groups.push({start: 4, count: 2, materialIndex: 2});
-	geometry.groups.push({start: 6, count: 2, materialIndex: 3});
-	geometry.groups.push({start: 8, count: 2, materialIndex: 4});
-	geometry.groups.push({start: 10, count: 2, materialIndex: 5});
+let group2 = group1.clone();
+let group3 = group1.clone();
 
-	const materials = [face1Mesh, face2Mesh, face3Mesh, face4Mesh, face5Mesh, face6Mesh];
+group1.position.set(0, 0, 0);
+group2.position.set(0, 0, 1.1);
+group3.position.set(0, 0, -1.1);
 
-	return new THREE.Mesh(geometry, materials);
-}
+let bigGroup1 = new THREE.Group();
+bigGroup1.add(group1);
+bigGroup1.add(group2);
+bigGroup1.add(group3);
 
-const cube = newCublet();
-cube.position.set(0, 0, 0);
-scene.add(cube);
+let bigGroup2 = bigGroup1.clone();
+let bigGroup3 = bigGroup1.clone();
 
-//creating an array of cubes with different colors
-// const colors = [
-// 	"white",
-// 	"green",
-// 	"red",
-// 	"blue",
-// 	"orange",
-// 	"yellow"
-// ]
-// const geometry = new THREE.BoxGeometry(1, 1, 1);
-// for (let i = 0; i < 3; i++) {
-// 	const material = new THREE.MeshBasicMaterial({color: colors[i]})
-// 	const cublet = new THREE.Mesh(geometry, material);
-// 	cublet.position.set(i, 0, 0);
-// 	scene.add(cublet);
-// }
+bigGroup1.position.set(0, 0, 0);
+bigGroup2.position.set(0, 1.1, 0);
+bigGroup3.position.set(0, -1.1, 0);
+
+scene.add(bigGroup1);
+scene.add(bigGroup2);
+scene.add(bigGroup3);
 
 function animate() {
 	requestAnimationFrame(animate);
