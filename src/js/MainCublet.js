@@ -3,13 +3,11 @@ import * as THREE from "three";
 
 export class MainCublet {
     constructor(scene, camera, renderer) {
-        this.scene = scene
         this.camera = camera;
-        this.renderer = renderer;
 
         this.geometry = new THREE.BoxGeometry(1, 1, 1);
         this.material = new THREE.MeshBasicMaterial({
-            color: 0xffffff,
+            color: 0x000000,
             wireframe: true,
         });
         this.mesh = new THREE.Mesh(this.geometry, this.material);

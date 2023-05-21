@@ -1,9 +1,8 @@
 import * as THREE from "three";
-import WebGL from 'three/addons/capabilities/WebGL.js';
-import {MainCublet} from "./MainCublet";
-import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import * as TWEEN from "@tweenjs/tween.js"
-import {texture} from "three/nodes";
+import WebGL from 'three/addons/capabilities/WebGL.js';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {RubiksCube} from "./RubiksCube";
 
 // creating a scene, a camera and a renderer and setting the correct parameters
 const scene = new THREE.Scene();
@@ -25,9 +24,8 @@ orbitControls.update();
 
 
 // creating a cublet
-let mainCublet = new MainCublet(scene, camera, renderer);
-scene.add(mainCublet.mesh);
-mainCublet.addKeyboardControls(orbitControls);
+const mainCube = new RubiksCube(scene, camera, renderer, orbitControls);
+scene.add(mainCube.mesh);
 
 function animate() {
     requestAnimationFrame(animate);
