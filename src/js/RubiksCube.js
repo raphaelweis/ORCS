@@ -12,20 +12,4 @@ export class RubiksCube {
         this.mesh = group;
     }
 
-    #addPlaneX() {
-        const geometry = new THREE.PlaneGeometry(3, 3);
-        const material = new THREE.MeshBasicMaterial({color: 0xffff00, side: THREE.DoubleSide});
-        const plane = new THREE.Mesh(geometry, material);
-
-        let plane1 = plane.clone();
-        let plane2 = plane.clone();
-        let plane3 = plane.clone();
-        let plane4 = plane.clone();
-        let plane5 = plane.clone();
-        let plane6 = plane.clone();
-
-        plane1.position.set(0, 0, 0);
-        return plane1;
-
-    }
 }
