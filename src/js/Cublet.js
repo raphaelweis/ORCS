@@ -5,7 +5,7 @@ export class Cublet {
     #colors = ["red", "orange", "white", "yellow", "green", "blue",];
 
     // box geometry (cube)
-    #geometry = new THREE.BoxGeometry(96, 96, 96);
+    #geometry = new THREE.BoxGeometry(90, 90, 90);
 
     // adding mesh to each set of 2 vertices, essentially adding a different mesh per cube face (cube = 2 triangles per face)
     #face1Mesh = new THREE.MeshBasicMaterial({color: this.#colors[0]});
@@ -32,32 +32,49 @@ export class Cublet {
 
 export class CenterPiece extends Cublet {
     face;
+
     constructor(face) {
         super();
         this.face = face;
-        this.#setPosition();
+        this.mesh.position.addScaledVector(this.face.direction, 100);
+    }
+}
+
+export class EdgePiece extends Cublet {
+    face;
+
+    constructor(face1, face2) {
+        super();
+        this.face = [face1, face2];
+        this.face.forEach((face) => {
+            face.edgePieces.push(this);
+        })
+        this.mesh.position.addScaledVector(this.#calculateDirection(), 100);
     }
 
-    #setPosition() {
-        switch(this.face.faceID) {
-            case "R":
-                this.mesh.position.set(102, 0, 0);
-                break;
-            case "L":
-                this.mesh.position.set(-102, 0, 0);
-                break;
-            case "U":
-                this.mesh.position.set(0, 102, 0);
-                break;
-            case "D":
-                this.mesh.position.set(0, -102, 0);
-                break;
-            case "F":
-                this.mesh.position.set(0, 0, 102);
-                break;
-            case "B":
-                this.mesh.position.set(0, 0, -102);
-                break;
-        }
+    #calculateDirection() {
+        return new THREE.Vector3()
+            .add(this.face[0].direction)
+            .add(this.face[1].direction);
+    }
+}
+
+export class CornerPiece extends Cublet {
+    face;
+
+    constructor(face1, face2, face3) {
+        super();
+        this.face = [face1, face2, face3];
+        this.face.forEach((face) => {
+            face.cornerPieces.push(this);
+        })
+        this.mesh.position.addScaledVector(this.#calculateDirection(), 100);
+    }
+
+    #calculateDirection() {
+        return new THREE.Vector3()
+            .add(this.face[0].direction)
+            .add(this.face[1].direction)
+            .add(this.face[2].direction);
     }
 }

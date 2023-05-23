@@ -14,6 +14,8 @@ export class Face {
 
     rubiksCube;
     centerPiece;
+    edgePieces;
+    cornerPieces;
 
     faceGroup;
 
@@ -21,20 +23,23 @@ export class Face {
     #initialRotation;
 
     constructor(faceID, rubiksCube) {
-        this.geometry = new THREE.BoxGeometry(300, 300, 4);
+        this.geometry = new THREE.PlaneGeometry(300, 300);
         this.material = new THREE.MeshBasicMaterial({color: 0x000000, side: THREE.DoubleSide});
         this.mesh = new THREE.Mesh(this.geometry, this.material);
+        this.mesh.visible = false;
 
         this.faceID = faceID;
 
+        this.#positionFace(faceID);
+
         this.rubiksCube = rubiksCube;
         this.centerPiece = new CenterPiece(this);
+        this.edgePieces = [];
+        this.cornerPieces = [];
 
         this.faceGroup = new THREE.Group();
         this.faceGroup.add(this.mesh);
         this.faceGroup.add(this.centerPiece.mesh);
-
-        this.#positionFace(faceID);
     }
 
     #positionFace() {
@@ -83,18 +88,35 @@ export class Face {
         this.mesh.rotation.set(this.#initialRotation[0], this.#initialRotation[1], this.#initialRotation[2]);
     }
 
+    #rotate(start, prev, end) {
+        this.rubiksCube.isAnimating = true;
+        new TWEEN.Tween(start)
+            .to(end, 100)
+            .onUpdate(({rotation}) => {
+                this.faceGroup.rotateOnWorldAxis(this.direction, rotation - prev.rotation);
+                // for each piece apply the correct angle relative to the corresponding world axis then rotate around said axis
+                this.edgePieces.forEach((edgePiece) => {
+                    edgePiece.mesh.position.applyAxisAngle(this.direction, rotation - prev.rotation);
+                    edgePiece.mesh.rotateOnWorldAxis(this.direction, rotation - prev.rotation);
+                })
+                this.cornerPieces.forEach((cornerPiece) => {
+                    cornerPiece.mesh.position.applyAxisAngle(this.direction, rotation - prev.rotation);
+                    cornerPiece.mesh.rotateOnWorldAxis(this.direction, rotation - prev.rotation);
+                })
+                prev.rotation = rotation;
+            })
+            .onComplete(() => {
+                this.rubiksCube.isAnimating = false
+            })
+            .start();
+    }
+
     rotateClockwise() {
         const start = {rotation: 0};
         const prev = {rotation: 0};
         const end = {rotation: _90Degrees};
 
-        new TWEEN.Tween(start)
-            .to(end, 100)
-            .onUpdate(({rotation}) => {
-                this.faceGroup.rotateOnWorldAxis(this.direction, rotation - prev.rotation);
-                prev.rotation = rotation;
-            })
-            .start();
+        this.#rotate(start, prev, end);
     }
 
     rotateCounterClockwise() {
@@ -102,12 +124,6 @@ export class Face {
         const prev = {rotation: 0};
         const end = {rotation: -_90Degrees};
 
-        new TWEEN.Tween(start)
-            .to(end, 100)
-            .onUpdate(({rotation}) => {
-                this.faceGroup.rotateOnWorldAxis(this.direction, rotation - prev.rotation);
-                prev.rotation = rotation;
-            })
-            .start();
+        this.#rotate(start, prev, end);
     }
 }
