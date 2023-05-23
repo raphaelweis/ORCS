@@ -5,7 +5,7 @@ export class Cublet {
     #colors = ["red", "orange", "white", "yellow", "green", "blue",];
 
     // box geometry (cube)
-    #geometry = new THREE.BoxGeometry(1, 1, 1);
+    #geometry = new THREE.BoxGeometry(96, 96, 96);
 
     // adding mesh to each set of 2 vertices, essentially adding a different mesh per cube face (cube = 2 triangles per face)
     #face1Mesh = new THREE.MeshBasicMaterial({color: this.#colors[0]});
@@ -16,12 +16,7 @@ export class Cublet {
     #face6Mesh = new THREE.MeshBasicMaterial({color: this.#colors[5]});
     #materials = [this.#face1Mesh, this.#face2Mesh, this.#face3Mesh, this.#face4Mesh, this.#face5Mesh, this.#face6Mesh];
 
-    constructor(scene, camera, renderer) {
-        this.scene = scene;
-        this.camera = renderer;
-        this.renderer = camera;
-
-
+    constructor() {
         //push the meshes to the cube faces
         this.#geometry.groups.push({start: 0, count: 2, materialIndex: 0});
         this.#geometry.groups.push({start: 2, count: 2, materialIndex: 1});
@@ -32,5 +27,37 @@ export class Cublet {
 
         // create a new mesh
         this.mesh = new THREE.Mesh(this.#geometry, this.#materials);
+    }
+}
+
+export class CenterPiece extends Cublet {
+    face;
+    constructor(face) {
+        super();
+        this.face = face;
+        this.#setPosition();
+    }
+
+    #setPosition() {
+        switch(this.face.faceID) {
+            case "R":
+                this.mesh.position.set(102, 0, 0);
+                break;
+            case "L":
+                this.mesh.position.set(-102, 0, 0);
+                break;
+            case "U":
+                this.mesh.position.set(0, 102, 0);
+                break;
+            case "D":
+                this.mesh.position.set(0, -102, 0);
+                break;
+            case "F":
+                this.mesh.position.set(0, 0, 102);
+                break;
+            case "B":
+                this.mesh.position.set(0, 0, -102);
+                break;
+        }
     }
 }

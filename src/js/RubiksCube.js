@@ -6,7 +6,6 @@ import {Face} from "./Face";
 export class RubiksCube {
     camera;
     mainCublet
-    isAnimating;
     faceU;
     faceD;
     faceL;
@@ -19,7 +18,6 @@ export class RubiksCube {
     constructor(scene, camera, renderer, orbitControls) {
         this.camera = camera;
         this.mainCublet = new MainCublet(scene, renderer);
-        this.isAnimating = false;
 
         this.faceU = new Face("U", this);
         this.faceD = new Face("D", this);
@@ -30,12 +28,12 @@ export class RubiksCube {
 
         this.mainGroup = new THREE.Group();
 
-        this.mainGroup.add(this.faceU.mesh);
-        this.mainGroup.add(this.faceD.mesh);
-        this.mainGroup.add(this.faceL.mesh);
-        this.mainGroup.add(this.faceR.mesh);
-        this.mainGroup.add(this.faceF.mesh);
-        this.mainGroup.add(this.faceB.mesh);
+        this.mainGroup.add(this.faceU.faceGroup);
+        this.mainGroup.add(this.faceD.faceGroup);
+        this.mainGroup.add(this.faceL.faceGroup);
+        this.mainGroup.add(this.faceR.faceGroup);
+        this.mainGroup.add(this.faceF.faceGroup);
+        this.mainGroup.add(this.faceB.faceGroup);
 
         this.mainGroup.add(this.mainCublet.mesh);
 
@@ -51,21 +49,15 @@ export class RubiksCube {
             }
             switch (e.key) {
                 case " ":
-                    this.camera.position.set(0, 0, 10);
+                    this.camera.position.set(0, 0, 1000);
                     this.reset();
                     orbitControls.update();
                     break;
                 case "u": // U
-                    this.faceU.rotateClockwise();
-                    break;
-                case "U": // U'
                     this.faceU.rotateCounterClockwise();
                     break;
-                case "f": // F
-                    this.faceF.rotateCounterClockwise();
-                    break;
-                case "F": // F'
-                    this.faceF.rotateClockwise();
+                case "U": // U'
+                    this.faceU.rotateClockwise();
                     break;
                 case "d": // D
                     this.faceD.rotateCounterClockwise();
@@ -73,17 +65,23 @@ export class RubiksCube {
                 case "D": // D'
                     this.faceD.rotateClockwise();
                     break;
-                case "b": // B
-                    this.faceB.rotateClockwise();
+                case "f": // F
+                    this.faceF.rotateCounterClockwise();
                     break;
-                case "B": // B'
+                case "F": // F'
+                    this.faceF.rotateClockwise();
+                    break;
+                case "b": // B
                     this.faceB.rotateCounterClockwise();
                     break;
+                case "B": // B'
+                    this.faceB.rotateClockwise();
+                    break;
                 case "l": // L
-                    this.faceL.rotateClockwise();
+                    this.faceL.rotateCounterClockwise();
                     break;
                 case "L": // L'
-                    this.faceL.rotateCounterClockwise();
+                    this.faceL.rotateClockwise();
                     break;
                 case "r": // R
                     this.faceR.rotateCounterClockwise();

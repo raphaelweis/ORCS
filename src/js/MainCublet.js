@@ -3,7 +3,7 @@ import * as THREE from "three";
 
 export class MainCublet {
     constructor(scene, renderer) {
-        this.geometry = new THREE.BoxGeometry(1, 1, 1);
+        this.geometry = new THREE.BoxGeometry(100, 100, 100);
         this.material = new THREE.MeshBasicMaterial({
             color: 0xffffff,
             wireframe: true,

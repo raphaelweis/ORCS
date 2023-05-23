@@ -3,7 +3,7 @@ import * as TWEEN from "@tweenjs/tween.js"
 import WebGL from 'three/addons/capabilities/WebGL.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RubiksCube} from "./RubiksCube";
-import {Cublet} from "./Cublet";
+import {CenterPiece, Cublet} from "./Cublet";
 
 // creating a scene, a camera and a renderer and setting the correct parameters
 const scene = new THREE.Scene();
@@ -17,7 +17,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // moving out the camera because the cube will spawn in 0, 0 ,0
-camera.position.set(0, 0, 10);
+camera.position.set(0, 0, 1000);
 
 // adding orbitControls
 const orbitControls = new OrbitControls(camera, renderer.domElement);
@@ -28,15 +28,8 @@ orbitControls.update();
 const mainCube = new RubiksCube(scene, camera, renderer, orbitControls);
 scene.add(mainCube.mesh);
 
-// adding a test Cublet
-const cublet = new Cublet(scene, camera, renderer);
-cublet.mesh.position.set(0, 1, 0);
-const cublet1 = new Cublet(scene, camera, renderer);
-cublet1.mesh.position.set(1, 1, 0);
-scene.add(cublet.mesh, cublet1.mesh);
-
 // axes visualization
-const axesHelper = new THREE.AxesHelper(3);
+const axesHelper = new THREE.AxesHelper(300);
 scene.add(axesHelper);
 
 function animate() {

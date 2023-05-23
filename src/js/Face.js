@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import * as TWEEN from "@tweenjs/tween.js";
+import {CenterPiece} from "./Cublet";
 
 const _90Degrees = Math.PI / 2;
 
@@ -7,55 +8,71 @@ export class Face {
     geometry;
     material;
     mesh;
+
+    faceID;
+    direction;
+
     rubiksCube;
-    #faceAxis;
+    centerPiece;
+
+    faceGroup;
+
     #initialPosition;
     #initialRotation;
 
     constructor(faceID, rubiksCube) {
-        this.geometry = new THREE.BoxGeometry(3, 3, 0.05);
+        this.geometry = new THREE.BoxGeometry(300, 300, 4);
         this.material = new THREE.MeshBasicMaterial({color: 0x000000, side: THREE.DoubleSide});
         this.mesh = new THREE.Mesh(this.geometry, this.material);
+
+        this.faceID = faceID;
+
         this.rubiksCube = rubiksCube;
+        this.centerPiece = new CenterPiece(this);
+
+        this.faceGroup = new THREE.Group();
+        this.faceGroup.add(this.mesh);
+        this.faceGroup.add(this.centerPiece.mesh);
+
         this.#positionFace(faceID);
     }
 
-    #positionFace(faceID) {
-        switch (faceID) {
+    #positionFace() {
+        switch (this.faceID) {
             case "U":
                 this.#initialRotation = [_90Degrees, 0, 0];
-                this.#initialPosition = [0, 0.5, 0];
-                this.#faceAxis = "y";
+                this.#initialPosition = [0, 50, 0];
+                this.direction = new THREE.Vector3(0, 1, 0);
                 this.reset();
                 break;
             case "D":
                 this.#initialRotation = [_90Degrees, 0, 0];
-                this.#initialPosition = [0, -0.5, 0];
-                this.#faceAxis = "y";
+                this.#initialPosition = [0, -50, 0];
+                this.direction = new THREE.Vector3(0, -1, 0);
                 this.reset();
                 break;
             case "L":
                 this.#initialRotation = [0, _90Degrees, 0];
-                this.#initialPosition = [-0.5, 0, 0];
-                this.#faceAxis = "x";
+                this.#initialPosition = [-50, 0, 0];
+                this.direction = new THREE.Vector3(-1, 0, 0);
                 this.reset();
                 break;
             case "R":
                 this.#initialRotation = [0, _90Degrees, 0];
-                this.#initialPosition = [0.5, 0, 0];
-                this.#faceAxis = "x";
+                this.#initialPosition = [50, 0, 0];
+                this.direction = new THREE.Vector3(1, 0, 0);
                 this.reset();
                 break;
             case "F":
                 this.#initialRotation = [0, 0, 0];
-                this.#initialPosition = [0, 0, 0.5];
-                this.#faceAxis = "y";
+                this.#initialPosition = [0, 0, 50];
+                this.direction = new THREE.Vector3(0, 0, 1);
                 this.reset();
                 break;
             case "B":
                 this.#initialRotation = [0, 0, 0];
-                this.#initialPosition = [0, 0, -0.5];
-                this.#faceAxis = "y";
+                this.#initialPosition = [0, 0, -50];
+                this.direction = new THREE.Vector3(0, 0, -1);
                 this.reset();
                 break;
         }
@@ -67,45 +84,29 @@ export class Face {
     }
 
     rotateClockwise() {
-        this.rubiksCube.isAnimating = true;
-        let targetPosition;
-        switch (this.#faceAxis) {
-            case "x":
-                targetPosition = {x: this.mesh.rotation.x + Math.PI / 2};
-                break;
-            case "y":
-                targetPosition = {z: this.mesh.rotation.z + Math.PI / 2};
-                break;
-            case "z":
-                targetPosition = {y: this.mesh.rotation.y + Math.PI / 2};
-                break;
-        }
-        new TWEEN.Tween(this.mesh.rotation)
-            .to(targetPosition, 100)
-            .onComplete(() => {
-                this.rubiksCube.isAnimating = false;
+        const start = {rotation: 0};
+        const prev = {rotation: 0};
+        const end = {rotation: _90Degrees};
+
+        new TWEEN.Tween(start)
+            .to(end, 100)
+            .onUpdate(({rotation}) => {
+                this.faceGroup.rotateOnWorldAxis(this.direction, rotation - prev.rotation);
+                prev.rotation = rotation;
             })
             .start();
     }
 
     rotateCounterClockwise() {
-        this.rubiksCube.isAnimating = true;
-        let targetPosition;
-        switch (this.#faceAxis) {
-            case "x":
-                targetPosition = {x: this.mesh.rotation.x - Math.PI / 2};
-                break;
-            case "y":
-                targetPosition = {z: this.mesh.rotation.z - Math.PI / 2};
-                break;
-            case "z":
-                targetPosition = {y: this.mesh.rotation.y - Math.PI / 2};
-                break;
-        }
-        new TWEEN.Tween(this.mesh.rotation)
-            .to(targetPosition, 100)
-            .onComplete(() => {
-                this.rubiksCube.isAnimating = false;
+        const start = {rotation: 0};
+        const prev = {rotation: 0};
+        const end = {rotation: -_90Degrees};
+
+        new TWEEN.Tween(start)
+            .to(end, 100)
+            .onUpdate(({rotation}) => {
+                this.faceGroup.rotateOnWorldAxis(this.direction, rotation - prev.rotation);
+                prev.rotation = rotation;
             })
             .start();
     }
