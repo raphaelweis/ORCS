@@ -16,7 +16,9 @@ export class Cublet {
     #face6Mesh = new THREE.MeshBasicMaterial({color: this.#colors[5]});
     #materials = [this.#face1Mesh, this.#face2Mesh, this.#face3Mesh, this.#face4Mesh, this.#face5Mesh, this.#face6Mesh];
 
-    constructor() {
+    rubiksCube;
+
+    constructor(rubiksCube) {
         //push the meshes to the cube faces
         this.#geometry.groups.push({start: 0, count: 2, materialIndex: 0});
         this.#geometry.groups.push({start: 2, count: 2, materialIndex: 1});
@@ -27,26 +29,31 @@ export class Cublet {
 
         // create a new mesh
         this.mesh = new THREE.Mesh(this.#geometry, this.#materials);
+
+        // add the parent main Rubik's Cube
+        this.rubiksCube = rubiksCube;
     }
 }
 
 export class CenterPiece extends Cublet {
     face;
+    direction;
 
-    constructor(face) {
-        super();
+    constructor(rubiksCube, face) {
+        super(rubiksCube);
         this.face = face;
-        this.mesh.position.addScaledVector(this.face.direction, 100);
+        this.direction = this.face.direction;
+        this.mesh.position.addScaledVector(this.direction, 100);
     }
 }
 
 export class EdgePiece extends Cublet {
-    face;
+    faces;
 
-    constructor(face1, face2) {
-        super();
-        this.face = [face1, face2];
-        this.face.forEach((face) => {
+    constructor(rubiksCube, face1, face2) {
+        super(rubiksCube);
+        this.faces = [face1, face2];
+        this.faces.forEach((face) => {
             face.edgePieces.push(this);
         })
         this.mesh.position.addScaledVector(this.#calculateDirection(), 100);
@@ -54,18 +61,18 @@ export class EdgePiece extends Cublet {
 
     #calculateDirection() {
         return new THREE.Vector3()
-            .add(this.face[0].direction)
-            .add(this.face[1].direction);
+            .add(this.faces[0].direction)
+            .add(this.faces[1].direction);
     }
 }
 
 export class CornerPiece extends Cublet {
-    face;
+    faces;
 
-    constructor(face1, face2, face3) {
-        super();
-        this.face = [face1, face2, face3];
-        this.face.forEach((face) => {
+    constructor(rubiksCube, face1, face2, face3) {
+        super(rubiksCube);
+        this.faces = [face1, face2, face3];
+        this.faces.forEach((face) => {
             face.cornerPieces.push(this);
         })
         this.mesh.position.addScaledVector(this.#calculateDirection(), 100);
@@ -73,8 +80,8 @@ export class CornerPiece extends Cublet {
 
     #calculateDirection() {
         return new THREE.Vector3()
-            .add(this.face[0].direction)
-            .add(this.face[1].direction)
-            .add(this.face[2].direction);
+            .add(this.faces[0].direction)
+            .add(this.faces[1].direction)
+            .add(this.faces[2].direction);
     }
 }

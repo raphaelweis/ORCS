@@ -3,12 +3,11 @@ import * as THREE from "three";
 import {MainCublet} from "./MainCublet";
 import {Face} from "./Face";
 import {CornerPiece, EdgePiece} from "./Cublet";
-import {or} from "three/nodes";
 
 export class RubiksCube {
     scene;
     camera;
-    camera;
+    renderer;
     orbitControls;
     mainCublet
     faceU;
@@ -31,7 +30,7 @@ export class RubiksCube {
         this.orbitControls = orbitControls;
         this.mainCublet = new MainCublet(this.scene, this.renderer);
 
-        // instantiate the 6 cube faces - with their corresponding center piece
+        // instantiate the 6 cube faces - with their corresponding centerpiece
         this.faceU = new Face("U", this);
         this.faceD = new Face("D", this);
         this.faceL = new Face("L", this);
@@ -40,31 +39,36 @@ export class RubiksCube {
         this.faceB = new Face("B", this);
         this.faces = [this.faceU, this.faceD, this.faceL, this.faceR, this.faceF, this.faceB];
 
+        // find each face's adjacent faces
+        this.faces.forEach((face) => {
+            face.findAdjacentFaces();
+        })
+
         // instantiate the 12 edge pieces - passing in their 2 initial faces
         this.edgePieces = [];
-        this.edgePieces[0] = new EdgePiece(this.faceU, this.faceB);
-        this.edgePieces[1] = new EdgePiece(this.faceU, this.faceR);
-        this.edgePieces[2] = new EdgePiece(this.faceU, this.faceF);
-        this.edgePieces[3] = new EdgePiece(this.faceU, this.faceL);
-        this.edgePieces[4] = new EdgePiece(this.faceB, this.faceR);
-        this.edgePieces[5] = new EdgePiece(this.faceR, this.faceF);
-        this.edgePieces[6] = new EdgePiece(this.faceF, this.faceL);
-        this.edgePieces[7] = new EdgePiece(this.faceL, this.faceB);
-        this.edgePieces[8] = new EdgePiece(this.faceD, this.faceB);
-        this.edgePieces[9] = new EdgePiece(this.faceD, this.faceR);
-        this.edgePieces[10] = new EdgePiece(this.faceD, this.faceF);
-        this.edgePieces[11] = new EdgePiece(this.faceD, this.faceL);
+        this.edgePieces[0] = new EdgePiece(this, this.faceU, this.faceB);
+        this.edgePieces[1] = new EdgePiece(this, this.faceU, this.faceR);
+        this.edgePieces[2] = new EdgePiece(this, this.faceU, this.faceF);
+        this.edgePieces[3] = new EdgePiece(this, this.faceU, this.faceL);
+        this.edgePieces[4] = new EdgePiece(this, this.faceB, this.faceR);
+        this.edgePieces[5] = new EdgePiece(this, this.faceR, this.faceF);
+        this.edgePieces[6] = new EdgePiece(this, this.faceF, this.faceL);
+        this.edgePieces[7] = new EdgePiece(this, this.faceL, this.faceB);
+        this.edgePieces[8] = new EdgePiece(this, this.faceD, this.faceB);
+        this.edgePieces[9] = new EdgePiece(this, this.faceD, this.faceR);
+        this.edgePieces[10] = new EdgePiece(this, this.faceD, this.faceF);
+        this.edgePieces[11] = new EdgePiece(this, this.faceD, this.faceL);
 
         // instantiate the 8 corner pieces - passing in their 3 initial faces
         this.cornerPieces = [];
-        this.cornerPieces[0] = new CornerPiece(this.faceU, this.faceL, this.faceB);
-        this.cornerPieces[1] = new CornerPiece(this.faceU, this.faceB, this.faceR);
-        this.cornerPieces[2] = new CornerPiece(this.faceU, this.faceR, this.faceF);
-        this.cornerPieces[3] = new CornerPiece(this.faceU, this.faceF, this.faceL);
-        this.cornerPieces[4] = new CornerPiece(this.faceD, this.faceL, this.faceB);
-        this.cornerPieces[5] = new CornerPiece(this.faceD, this.faceB, this.faceR);
-        this.cornerPieces[6] = new CornerPiece(this.faceD, this.faceR, this.faceF);
-        this.cornerPieces[7] = new CornerPiece(this.faceD, this.faceF, this.faceL);
+        this.cornerPieces[0] = new CornerPiece(this, this.faceU, this.faceL, this.faceB);
+        this.cornerPieces[1] = new CornerPiece(this, this.faceU, this.faceB, this.faceR);
+        this.cornerPieces[2] = new CornerPiece(this, this.faceU, this.faceR, this.faceF);
+        this.cornerPieces[3] = new CornerPiece(this, this.faceU, this.faceF, this.faceL);
+        this.cornerPieces[4] = new CornerPiece(this, this.faceD, this.faceL, this.faceB);
+        this.cornerPieces[5] = new CornerPiece(this, this.faceD, this.faceB, this.faceR);
+        this.cornerPieces[6] = new CornerPiece(this, this.faceD, this.faceR, this.faceF);
+        this.cornerPieces[7] = new CornerPiece(this, this.faceD, this.faceF, this.faceL);
 
         // instantiate the main Group which will be added to the scene
         this.mainGroup = new THREE.Group();
@@ -103,7 +107,6 @@ export class RubiksCube {
             switch (e.key) {
                 case " ":
                     this.camera.position.set(0, 0, 1000);
-                    this.reset();
                     this.orbitControls.update();
                     break;
                 case "u": // U
@@ -146,6 +149,4 @@ export class RubiksCube {
         }
     }
 
-    reset() {
-    }
 }

@@ -14,6 +14,7 @@ export class Face {
 
     rubiksCube;
     centerPiece;
+    adjacentFaces;
     edgePieces;
     cornerPieces;
 
@@ -33,7 +34,8 @@ export class Face {
         this.#positionFace(faceID);
 
         this.rubiksCube = rubiksCube;
-        this.centerPiece = new CenterPiece(this);
+        this.centerPiece = new CenterPiece(this.rubiksCube, this);
+        this.adjacentFaces = [];
         this.edgePieces = [];
         this.cornerPieces = [];
 
@@ -83,9 +85,47 @@ export class Face {
         }
     }
 
+    findAdjacentFaces() {
+        switch (this.faceID) {
+            case "U":
+                this.adjacentFaces.push(this.rubiksCube.faceB, this.rubiksCube.faceR, this.rubiksCube.faceF, this.rubiksCube.faceL);
+                break;
+            case "D":
+                this.adjacentFaces.push(this.rubiksCube.faceB, this.rubiksCube.faceR, this.rubiksCube.faceF, this.rubiksCube.faceL);
+                break;
+            case "L":
+                this.adjacentFaces.push(this.rubiksCube.faceU, this.rubiksCube.faceF, this.rubiksCube.faceD, this.rubiksCube.faceB);
+                break;
+            case "R":
+                this.adjacentFaces.push(this.rubiksCube.faceU, this.rubiksCube.faceF, this.rubiksCube.faceD, this.rubiksCube.faceB);
+                break;
+            case "F":
+                this.adjacentFaces.push(this.rubiksCube.faceU, this.rubiksCube.faceR, this.rubiksCube.faceD, this.rubiksCube.faceL);
+                break;
+            case "B":
+                this.adjacentFaces.push(this.rubiksCube.faceU, this.rubiksCube.faceR, this.rubiksCube.faceD, this.rubiksCube.faceL);
+                break;
+        }
+    }
+
     reset() {
         this.mesh.position.set(this.#initialPosition[0], this.#initialPosition[1], this.#initialPosition[2]);
         this.mesh.rotation.set(this.#initialRotation[0], this.#initialRotation[1], this.#initialRotation[2]);
+    }
+
+    updatePieces() {
+        /*
+        To update the face pieces, we know that:
+            - The face that rotated will not see any change in the pieces it's carrying
+            - each adjacent face to the face that rotated will have 1 new edge piece, and 2 new corner pieces
+            - for the new edge piece, it will be the piece that:
+                - was on the face that just rotated
+                - was on the adjacent face that was on the PREVIOUS position in the adjacent face list for the face that rotated
+            - for the 2 new corner pieces, the rules are the same, but for 2 pieces instead of 1;
+        Each face has 4 adjacent faces. For a given face turn, it boils down to this:
+            - each adjacent face will receive 3 new pieces, which are going to replace the 3 pieces that went to the next face.
+            - We can use a Circular Singly Linked List to shift every group of 3 pieces to the next adjacent face
+         */
     }
 
     #rotate(start, prev, end) {
@@ -107,6 +147,7 @@ export class Face {
             })
             .onComplete(() => {
                 this.rubiksCube.isAnimating = false
+                this.updatePieces();
             })
             .start();
     }
