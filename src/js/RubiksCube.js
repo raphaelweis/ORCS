@@ -1,158 +1,152 @@
 import * as THREE from "three";
-import * as TWEEN from "@tweenjs/tween.js";
 
 import {MainCublet} from "./MainCublet";
 import {Face} from "./Face";
+import {CornerPiece, EdgePiece} from "./Cublet";
 
 export class RubiksCube {
+    scene;
     camera;
+    renderer;
+    orbitControls;
     mainCublet
-    faceL;
-    faceR;
     faceU;
     faceD;
+    faceL;
+    faceR;
     faceF;
     faceB;
+    faces;
+    edgePieces;
+    cornerPieces;
     mainGroup;
     mesh;
+    isAnimating;
 
     constructor(scene, camera, renderer, orbitControls) {
+        this.scene = scene;
         this.camera = camera;
-        this.mainCublet = new MainCublet(scene, renderer);
+        this.renderer = renderer;
+        this.orbitControls = orbitControls;
+        this.mainCublet = new MainCublet(this.scene, this.renderer);
 
-        this.faceL = new Face("L");
-        this.faceR = new Face("R");
-        this.faceU = new Face("U");
-        this.faceD = new Face("D");
-        this.faceF = new Face("F");
-        this.faceB = new Face("B");
+        // instantiate the 6 cube faces - with their corresponding centerpiece
+        this.faceU = new Face("U", this);
+        this.faceD = new Face("D", this);
+        this.faceL = new Face("L", this);
+        this.faceR = new Face("R", this);
+        this.faceF = new Face("F", this);
+        this.faceB = new Face("B", this);
+        this.faces = [this.faceU, this.faceD, this.faceL, this.faceR, this.faceF, this.faceB];
 
+        // find each face's adjacent faces
+        this.faces.forEach((face) => {
+            face.findAdjacentFaces();
+        })
+
+        // instantiate the 12 edge pieces - passing in their 2 initial faces
+        this.edgePieces = [];
+        this.edgePieces[0] = new EdgePiece(this, this.faceU, this.faceB);
+        this.edgePieces[1] = new EdgePiece(this, this.faceU, this.faceR);
+        this.edgePieces[2] = new EdgePiece(this, this.faceU, this.faceF);
+        this.edgePieces[3] = new EdgePiece(this, this.faceU, this.faceL);
+        this.edgePieces[4] = new EdgePiece(this, this.faceB, this.faceR);
+        this.edgePieces[5] = new EdgePiece(this, this.faceR, this.faceF);
+        this.edgePieces[6] = new EdgePiece(this, this.faceF, this.faceL);
+        this.edgePieces[7] = new EdgePiece(this, this.faceL, this.faceB);
+        this.edgePieces[8] = new EdgePiece(this, this.faceD, this.faceB);
+        this.edgePieces[9] = new EdgePiece(this, this.faceD, this.faceR);
+        this.edgePieces[10] = new EdgePiece(this, this.faceD, this.faceF);
+        this.edgePieces[11] = new EdgePiece(this, this.faceD, this.faceL);
+
+        // instantiate the 8 corner pieces - passing in their 3 initial faces
+        this.cornerPieces = [];
+        this.cornerPieces[0] = new CornerPiece(this, this.faceU, this.faceL, this.faceB);
+        this.cornerPieces[1] = new CornerPiece(this, this.faceU, this.faceB, this.faceR);
+        this.cornerPieces[2] = new CornerPiece(this, this.faceU, this.faceR, this.faceF);
+        this.cornerPieces[3] = new CornerPiece(this, this.faceU, this.faceF, this.faceL);
+        this.cornerPieces[4] = new CornerPiece(this, this.faceD, this.faceL, this.faceB);
+        this.cornerPieces[5] = new CornerPiece(this, this.faceD, this.faceB, this.faceR);
+        this.cornerPieces[6] = new CornerPiece(this, this.faceD, this.faceR, this.faceF);
+        this.cornerPieces[7] = new CornerPiece(this, this.faceD, this.faceF, this.faceL);
+
+        // instantiate the main Group which will be added to the scene
         this.mainGroup = new THREE.Group();
 
-        this.mainGroup.add(this.faceL.mesh);
-        this.mainGroup.add(this.faceR.mesh);
-        this.mainGroup.add(this.faceU.mesh);
-        this.mainGroup.add(this.faceD.mesh);
-        this.mainGroup.add(this.faceF.mesh);
-        this.mainGroup.add(this.faceB.mesh);
+        // add the 6 faces
+        this.mainGroup.add(this.faceU.faceGroup);
+        this.mainGroup.add(this.faceD.faceGroup);
+        this.mainGroup.add(this.faceL.faceGroup);
+        this.mainGroup.add(this.faceR.faceGroup);
+        this.mainGroup.add(this.faceF.faceGroup);
+        this.mainGroup.add(this.faceB.faceGroup);
+
+        // add the 12 edge pieces
+        for (let i = 0; i < this.edgePieces.length; i++) {
+            this.mainGroup.add(this.edgePieces[i].mesh);
+        }
+
+        // add the 8 corner pieces
+        for (let i = 0; i < this.cornerPieces.length; i++) {
+            this.mainGroup.add(this.cornerPieces[i].mesh);
+        }
 
         this.mainGroup.add(this.mainCublet.mesh);
+
         this.mesh = this.mainGroup;
+
         this.addKeyboardControls(orbitControls);
+        this.isAnimating = false;
     }
 
-    #faceInitialRotation(face) {
-        return {
-            x: face.mesh.rotation.x,
-            y: face.mesh.rotation.y,
-            z: face.mesh.rotation.z
-        }
-    }
-    #facePositiveRotation(face) {
-        return {
-            x: face.mesh.rotation.x + Math.PI / 2,
-            y: face.mesh.rotation.y + Math.PI / 2,
-            z: face.mesh.rotation.z + Math.PI / 2
-        }
-    }
-    #faceNegativeRotation(face) {
-        return {
-            x: face.mesh.rotation.x - Math.PI / 2,
-            y: face.mesh.rotation.y - Math.PI / 2,
-            z: face.mesh.rotation.z - Math.PI / 2
-        }
-    }
-
-    addKeyboardControls(orbitControls) {
+    addKeyboardControls() {
         document.onkeydown = (e) => {
-            console.log(e);
-            if (this.animating) {
+            if (this.isAnimating) {
                 return;
             }
             switch (e.key) {
                 case " ":
-                    this.camera.position.set(0, 0, 10);
-                    orbitControls.update();
+                    this.camera.position.set(0, 0, 1000);
+                    this.orbitControls.update();
                     break;
                 case "u": // U
-                    this.animateRotationY(this.#faceInitialRotation(this.faceU), this.#faceNegativeRotation(this.faceU));
+                    this.faceU.rotateCounterClockwise();
                     break;
                 case "U": // U'
-                    this.animateRotationY(this.#faceInitialRotation(this.faceU), this.#facePositiveRotation(this.faceU));
-                    break;
-                case "f": // F
-                    this.animateRotationZ(this.#faceInitialRotation(this.faceF), this.#facePositiveRotation(this.faceF));
-                    break;
-                case "F": // F'
-                    this.animateRotationZ(this.#faceInitialRotation(this.faceF), this.#faceNegativeRotation(this.faceF));
+                    this.faceU.rotateClockwise();
                     break;
                 case "d": // D
-                    this.animateRotationY(this.#faceInitialRotation(this.faceD), this.#facePositiveRotation(this.faceD));
+                    this.faceD.rotateCounterClockwise();
                     break;
                 case "D": // D'
-                    this.animateRotationY(this.#faceInitialRotation(this.faceD), this.#faceNegativeRotation(this.faceD));
+                    this.faceD.rotateClockwise();
+                    break;
+                case "f": // F
+                    this.faceF.rotateCounterClockwise();
+                    break;
+                case "F": // F'
+                    this.faceF.rotateClockwise();
                     break;
                 case "b": // B
-                    this.animateRotationZ(this.#faceInitialRotation(this.faceB), this.#faceNegativeRotation(this.faceB));
+                    this.faceB.rotateCounterClockwise();
                     break;
                 case "B": // B'
-                    this.animateRotationZ(this.#faceInitialRotation(this.faceB), this.#facePositiveRotation(this.faceB));
+                    this.faceB.rotateClockwise();
                     break;
                 case "l": // L
-                    this.animateRotation(this.#faceInitialRotation(this.faceL), this.#faceNegativeRotation(this.faceL), this.faceL);
+                    this.faceL.rotateCounterClockwise();
                     break;
                 case "L": // L'
-                    this.animateRotation(this.#faceInitialRotation(this.faceL), this.#facePositiveRotation(this.faceL), this.faceL);
+                    this.faceL.rotateClockwise();
                     break;
                 case "r": // R
-                    this.animateRotation(this.#faceInitialRotation(this.faceR), this.#facePositiveRotation(this.faceR), this.faceR);
+                    this.faceR.rotateCounterClockwise();
                     break;
                 case "R": // R'
-                    this.animateRotation(this.#faceInitialRotation(this.faceR), this.#faceNegativeRotation(this.faceR), this.faceR);
+                    this.faceR.rotateClockwise();
                     break;
             }
         }
     }
 
-    animateRotation(initialRotation, targetRotation, face) {
-        this.animating = true;
-        new TWEEN.Tween(initialRotation)
-            .to(targetRotation, 50)
-            .easing(TWEEN.Easing.Linear.None)
-            .onUpdate(() => {
-                face.mesh.rotation.z = initialRotation.z;
-            })
-            .onComplete(() => {
-                this.animating = false;
-            })
-            .start();
-    }
-
-    animateRotationY(initialRotation, targetRotation) {
-        this.animating = true;
-        new TWEEN.Tween(initialRotation)
-            .to(targetRotation, 100)
-            .easing(TWEEN.Easing.Linear.None)
-            .onUpdate(() => {
-                this.mesh.rotation.y = initialRotation.y;
-            })
-            .onComplete(() => {
-                this.animating = false;
-            })
-            .start();
-    }
-
-    animateRotationZ(initialRotation, targetRotation) {
-        this.animating = true;
-        new TWEEN.Tween(initialRotation)
-            .to(targetRotation, 100)
-            .easing(TWEEN.Easing.Linear.None)
-            .onUpdate(() => {
-                this.mesh.rotation.z = initialRotation.z;
-            })
-            .onComplete(() => {
-                this.animating = false;
-            })
-            .start();
-    }
 }
