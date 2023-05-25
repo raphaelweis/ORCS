@@ -8,6 +8,8 @@ export default class Face {
     geometry;
     material;
     mesh;
+    boudingBox;
+    plane;
 
     faceID;
     rotationID;
@@ -25,6 +27,7 @@ export default class Face {
         this.geometry = new THREE.PlaneGeometry(290, 290);
         this.material = new THREE.MeshBasicMaterial({color: 0x000000, side: THREE.DoubleSide});
         this.mesh = new THREE.Mesh(this.geometry, this.material);
+        this.boudingBox = new THREE.Box3().setFromObject(this.mesh);
         this.mesh.visible = true;
 
         this.faceID = faceID;
@@ -35,6 +38,7 @@ export default class Face {
         this.rubiksCube = rubiksCube;
 
         this.setFacePosition(faceID);
+        this.plane = new THREE.Plane(this.direction, 100);
 
         this.centerPiece = new CenterPiece(this.rubiksCube, this);
 
@@ -49,42 +53,42 @@ export default class Face {
                 this.direction = new THREE.Vector3(0, 1, 0);
 
                 this.mesh.lookAt(this.direction);
-                this.mesh.position.addScaledVector(this.direction, 50);
+                this.mesh.position.addScaledVector(this.direction, 100);
 
                 break;
             case "D":
                 this.direction = new THREE.Vector3(0, -1, 0);
 
                 this.mesh.lookAt(this.direction);
-                this.mesh.position.addScaledVector(this.direction, 50);
+                this.mesh.position.addScaledVector(this.direction, 100);
 
                 break;
             case "L":
                 this.direction = new THREE.Vector3(-1, 0, 0);
 
                 this.mesh.lookAt(this.direction);
-                this.mesh.position.addScaledVector(this.direction, 50);
+                this.mesh.position.addScaledVector(this.direction, 100);
 
                 break;
             case "R":
                 this.direction = new THREE.Vector3(1, 0, 0);
 
                 this.mesh.lookAt(this.direction);
-                this.mesh.position.addScaledVector(this.direction, 50);
+                this.mesh.position.addScaledVector(this.direction, 100);
 
                 break;
             case "F":
                 this.direction = new THREE.Vector3(0, 0, 1);
 
                 this.mesh.lookAt(this.direction);
-                this.mesh.position.addScaledVector(this.direction, 50);
+                this.mesh.position.addScaledVector(this.direction, 100);
 
                 break;
             case "B":
                 this.direction = new THREE.Vector3(0, 0, -1);
 
                 this.mesh.lookAt(this.direction);
-                this.mesh.position.addScaledVector(this.direction, 50);
+                this.mesh.position.addScaledVector(this.direction, 100);
 
                 break;
         }
@@ -242,6 +246,7 @@ export default class Face {
                 this.edgePieces.forEach((edgePiece) => {
                     edgePiece.mesh.position.applyAxisAngle(this.direction, rotation - prev.rotation);
                     edgePiece.mesh.rotateOnWorldAxis(this.direction, rotation - prev.rotation);
+                    edgePiece.geometry.computeBoundingBox();
                 })
                 this.cornerPieces.forEach((cornerPiece) => {
                     cornerPiece.mesh.position.applyAxisAngle(this.direction, rotation - prev.rotation);
@@ -262,11 +267,16 @@ export default class Face {
 
         this.#rotate(start, prev, end);
 
-        this.#shiftArrayRight(this.edgePieces);
+        this.adjacentFaces.forEach((face) => {
+            face.edgePieces.length = 0;
+            this.rubiksCube.edgePieces.forEach((edgePiece) => {
+                console.log("intersects");
+                if (edgePiece.geometry.boudingBox.intersectsPlane(face.plane)) {
+                    face.edgePieces.push(edgePiece);
+                }
+            })
+        })
 
-        for (let i = 0; i < this.edgePieces.length; i++) {
-            this.adjacentFaces[i].edgePieces[this.rotationID] = this.edgePieces[i];
-        }
     }
 
     rotateCounterClockwise() {
@@ -276,10 +286,13 @@ export default class Face {
 
         this.#rotate(start, prev, end);
 
-        this.#shiftArrayLeft(this.edgePieces);
-
-        for (let i = 0; i < this.edgePieces.length; i++) {
-            this.adjacentFaces[i].edgePieces[this.rotationID] = this.edgePieces[i];
-        }
+        this.adjacentFaces.forEach((face) => {
+            face.edgePieces.length = 0;
+            this.rubiksCube.edgePieces.forEach((edgePiece) => {
+                if (edgePiece.geometry.boundingBox.intersectsPlane(face.plane)) {
+                    face.edgePieces.push(edgePiece);
+                }
+            })
+        })
     }
 }

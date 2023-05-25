@@ -5,7 +5,7 @@ export class Cublet {
     #colors = ["red", "orange", "white", "yellow", "green", "blue",];
 
     // box geometry (cube)
-    #geometry = new THREE.BoxGeometry(90, 90, 90);
+    geometry = new THREE.BoxGeometry(90, 90, 90);
 
     // adding mesh to each set of 2 vertices, essentially adding a different mesh per cube face (cube = 2 triangles per face)
     #face1Mesh = new THREE.MeshBasicMaterial({color: this.#colors[0]});
@@ -17,21 +17,24 @@ export class Cublet {
     #materials = [this.#face1Mesh, this.#face2Mesh, this.#face3Mesh, this.#face4Mesh, this.#face5Mesh, this.#face6Mesh];
 
     rubiksCube;
+    boundingBox;
 
     constructor(rubiksCube) {
         //push the meshes to the cube faces
-        this.#geometry.groups.push({start: 0, count: 2, materialIndex: 0});
-        this.#geometry.groups.push({start: 2, count: 2, materialIndex: 1});
-        this.#geometry.groups.push({start: 4, count: 2, materialIndex: 2});
-        this.#geometry.groups.push({start: 6, count: 2, materialIndex: 3});
-        this.#geometry.groups.push({start: 8, count: 2, materialIndex: 4});
-        this.#geometry.groups.push({start: 10, count: 2, materialIndex: 5});
+        this.geometry.groups.push({start: 0, count: 2, materialIndex: 0});
+        this.geometry.groups.push({start: 2, count: 2, materialIndex: 1});
+        this.geometry.groups.push({start: 4, count: 2, materialIndex: 2});
+        this.geometry.groups.push({start: 6, count: 2, materialIndex: 3});
+        this.geometry.groups.push({start: 8, count: 2, materialIndex: 4});
+        this.geometry.groups.push({start: 10, count: 2, materialIndex: 5});
 
         // create a new mesh
-        this.mesh = new THREE.Mesh(this.#geometry, this.#materials);
+        this.mesh = new THREE.Mesh(this.geometry, this.#materials);
+        this.geometry.computeBoundingBox();
 
         // add the parent main Rubik's Cube
         this.rubiksCube = rubiksCube;
+        this.boundingBox = new THREE.Box3().setFromObject(this.mesh);
     }
 }
 
