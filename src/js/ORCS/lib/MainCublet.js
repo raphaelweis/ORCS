@@ -1,7 +1,7 @@
 import * as TWEEN from '@tweenjs/tween.js'
 import * as THREE from "three";
 
-export class MainCublet {
+export default class MainCublet {
     constructor(scene, renderer) {
         this.geometry = new THREE.BoxGeometry(100, 100, 100);
         this.material = new THREE.MeshBasicMaterial({

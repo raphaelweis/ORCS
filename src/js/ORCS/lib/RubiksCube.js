@@ -4,7 +4,7 @@ import {MainCublet} from "./MainCublet";
 import {Face} from "./Face";
 import {CornerPiece, EdgePiece} from "./Cublet";
 
-export class RubiksCube {
+export default class RubiksCube {
     scene;
     camera;
     renderer;

@@ -1,4 +1,4 @@
-class DoublyCircularLinkedList {
+export default class DoublyCircularLinkedList {
     tail;
 
     constructor() {

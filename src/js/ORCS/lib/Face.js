@@ -4,7 +4,7 @@ import {CenterPiece} from "./Cublet";
 
 const _90Degrees = Math.PI / 2;
 
-export class Face {
+export default class Face {
     geometry;
     material;
     mesh;

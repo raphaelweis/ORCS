@@ -1,9 +1,10 @@
 import * as THREE from "three";
-import * as TWEEN from "@tweenjs/tween.js"
-import WebGL from 'three/addons/capabilities/WebGL.js';
+import * as TWEEN from "@tweenjs/tween.js";
+import * as ORCS from "./ORCS";
+
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
-import {RubiksCube} from "./RubiksCube";
-import {CenterPiece, Cublet} from "./Cublet";
+
+import WebGL from 'three/addons/capabilities/WebGL.js';
 
 // creating a scene, a camera and a renderer and setting the correct parameters
 const scene = new THREE.Scene();
@@ -25,8 +26,8 @@ orbitControls.update();
 
 
 // creating a full Rubik's Cube
-const mainCube = new RubiksCube(scene, camera, renderer, orbitControls);
-scene.add(mainCube.mesh);
+const rubiksCube = new ORCS.RubiksCube(scene, camera, renderer, orbitControls);
+scene.add(rubiksCube.mesh);
 
 // axes visualization
 const axesHelper = new THREE.AxesHelper(300);
