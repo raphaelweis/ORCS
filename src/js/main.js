@@ -1,10 +1,10 @@
 import * as THREE from "three";
 import * as TWEEN from "@tweenjs/tween.js";
-import * as ORCS from "./ORCS";
 
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 
 import WebGL from 'three/addons/capabilities/WebGL.js';
+import RubiksCube from './ORCS/lib/RubiksCube'
 
 // creating a scene, a camera and a renderer and setting the correct parameters
 const scene = new THREE.Scene();
@@ -18,15 +18,22 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // moving out the camera because the cube will spawn in 0, 0 ,0
-camera.position.set(0, 0, 1000);
+camera.position.set(300, 300, 300);
 
 // adding orbitControls
 const orbitControls = new OrbitControls(camera, renderer.domElement);
 orbitControls.update();
 
+// graphics info
+const graphics = {
+    scene: scene,
+    camera: camera,
+    renderer: renderer,
+    orbitControls: orbitControls
+};
 
 // creating a full Rubik's Cube
-const rubiksCube = new ORCS.RubiksCube(scene, camera, renderer, orbitControls);
+const rubiksCube = new RubiksCube(graphics);
 scene.add(rubiksCube.mesh);
 
 // axes visualization

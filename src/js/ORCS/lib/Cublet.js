@@ -53,9 +53,6 @@ export class EdgePiece extends Cublet {
     constructor(rubiksCube, face1, face2) {
         super(rubiksCube);
         this.faces = [face1, face2];
-        this.faces.forEach((face) => {
-            face.edgePieces.push(this);
-        })
         this.mesh.position.addScaledVector(this.#calculateDirection(), 100);
     }
 
@@ -72,9 +69,6 @@ export class CornerPiece extends Cublet {
     constructor(rubiksCube, face1, face2, face3) {
         super(rubiksCube);
         this.faces = [face1, face2, face3];
-        this.faces.forEach((face) => {
-            face.cornerPieces.push(this);
-        })
         this.mesh.position.addScaledVector(this.#calculateDirection(), 100);
     }
 
