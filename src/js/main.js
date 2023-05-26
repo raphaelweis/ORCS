@@ -18,7 +18,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // moving out the camera because the cube will spawn in 0, 0 ,0
-camera.position.set(300, 300, 300);
+camera.position.set(3, 3, 3);
 
 // adding orbitControls
 const orbitControls = new OrbitControls(camera, renderer.domElement);
@@ -37,7 +37,7 @@ const rubiksCube = new RubiksCube(graphics);
 scene.add(rubiksCube.mesh);
 
 // axes visualization
-const axesHelper = new THREE.AxesHelper(300);
+const axesHelper = new THREE.AxesHelper(3);
 scene.add(axesHelper);
 
 function animate() {

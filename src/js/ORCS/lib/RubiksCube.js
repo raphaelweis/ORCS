@@ -1,6 +1,5 @@
 import * as THREE from "three";
 
-import MainCublet from "./MainCublet";
 import Face from "./Face";
 import {CornerPiece, EdgePiece} from "./Cublet";
 
@@ -9,7 +8,6 @@ export default class RubiksCube {
     camera;
     renderer;
     orbitControls;
-    mainCublet
     faceU;
     faceD;
     faceL;
@@ -28,7 +26,6 @@ export default class RubiksCube {
         this.camera = graphics.camera;
         this.renderer = graphics.renderer;
         this.orbitControls = graphics.orbitControls;
-        this.mainCublet = new MainCublet();
 
         // instantiate the 6 cube faces - with their corresponding centerpiece
         this.faceU = new Face("U", this);
@@ -67,8 +64,8 @@ export default class RubiksCube {
 
         // configure for each face: the adjacent faces array, the edge pieces array, the corner pieces array.
         this.faces.forEach((face) => {
-            face.setAdjacentFaces();
-            face.setEdgePieces();
+            face.updateEdgePieces();
+            face.updateCornerPieces();
         })
 
         // instantiate the main Group which will be added to the scene
@@ -88,11 +85,9 @@ export default class RubiksCube {
         })
 
         // // add the 8 corner pieces
-        // for (let i = 0; i < this.cornerPieces.length; i++) {
-        //     this.mainGroup.add(this.cornerPieces[i].mesh);
-        // }
-
-        this.mainGroup.add(this.mainCublet.mesh);
+        for (let i = 0; i < this.cornerPieces.length; i++) {
+            this.mainGroup.add(this.cornerPieces[i].mesh);
+        }
 
         this.mesh = this.mainGroup;
 
@@ -107,7 +102,7 @@ export default class RubiksCube {
             }
             switch (e.key) {
                 case " ":
-                    this.camera.position.set(0, 0, 1000);
+                    this.camera.position.set(3, 3, 3);
                     this.orbitControls.update();
                     break;
                 case "u": // U

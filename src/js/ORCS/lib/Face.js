@@ -8,11 +8,9 @@ export default class Face {
     geometry;
     material;
     mesh;
-    boudingBox;
     plane;
 
     faceID;
-    rotationID;
     direction;
 
     rubiksCube;
@@ -24,11 +22,10 @@ export default class Face {
     faceGroup;
 
     constructor(faceID, rubiksCube) {
-        this.geometry = new THREE.PlaneGeometry(290, 290);
+        this.geometry = new THREE.PlaneGeometry(2.9, 2.9);
         this.material = new THREE.MeshBasicMaterial({color: 0x000000, side: THREE.DoubleSide});
         this.mesh = new THREE.Mesh(this.geometry, this.material);
-        this.boudingBox = new THREE.Box3().setFromObject(this.mesh);
-        this.mesh.visible = true;
+        this.mesh.visible = false;
 
         this.faceID = faceID;
 
@@ -38,7 +35,7 @@ export default class Face {
         this.rubiksCube = rubiksCube;
 
         this.setFacePosition(faceID);
-        this.plane = new THREE.Plane(this.direction, 100);
+        this.plane = new THREE.Plane(this.direction, 1);
 
         this.centerPiece = new CenterPiece(this.rubiksCube, this);
 
@@ -94,146 +91,28 @@ export default class Face {
         }
     }
 
-    setAdjacentFaces() {
-        switch (this.faceID) {
-            case "U":
-                this.adjacentFaces.push(
-                    this.rubiksCube.faceB,
-                    this.rubiksCube.faceR,
-                    this.rubiksCube.faceF,
-                    this.rubiksCube.faceL
-                );
-                this.rotationID = 0;
-
-                break;
-            case "D":
-                this.adjacentFaces.push(
-                    this.rubiksCube.faceB,
-                    this.rubiksCube.faceR,
-                    this.rubiksCube.faceF,
-                    this.rubiksCube.faceL
-                );
-                this.rotationID = 2;
-
-                break;
-            case "L":
-                this.adjacentFaces.push(
-                    this.rubiksCube.faceU,
-                    this.rubiksCube.faceF,
-                    this.rubiksCube.faceD,
-                    this.rubiksCube.faceB
-                );
-                this.rotationID = 3;
-
-                break;
-            case "R":
-                this.adjacentFaces.push(
-                    this.rubiksCube.faceU,
-                    this.rubiksCube.faceB,
-                    this.rubiksCube.faceD,
-                    this.rubiksCube.faceF
-                );
-                this.rotationID = 1;
-
-                break;
-            case "F":
-                this.adjacentFaces.push(
-                    this.rubiksCube.faceU,
-                    this.rubiksCube.faceR,
-                    this.rubiksCube.faceD,
-                    this.rubiksCube.faceL
-                );
-                this.rotationID = 2;
-
-                break;
-            case "B":
-                this.adjacentFaces.push(
-                    this.rubiksCube.faceU,
-                    this.rubiksCube.faceL,
-                    this.rubiksCube.faceD,
-                    this.rubiksCube.faceR,
-                );
-                this.rotationID = 0;
-
-                break;
-        }
+    updateEdgePieces() {
+        this.edgePieces.length = 0;
+        this.rubiksCube.edgePieces.forEach((edgePiece) => {
+            edgePiece.faces.forEach((face) => {
+                if (face === this) {
+                    console.log("found a piece match")
+                    this.edgePieces.push(edgePiece);
+                }
+            })
+        })
     }
 
-    setEdgePieces() {
-        switch (this.faceID) {
-            case "U":
-                this.edgePieces.push(
-                    this.rubiksCube.edgePieces.get("UB"),
-                    this.rubiksCube.edgePieces.get("UR"),
-                    this.rubiksCube.edgePieces.get("UF"),
-                    this.rubiksCube.edgePieces.get("UL"),
-                );
-                break;
-            case "D":
-                this.edgePieces.push(
-                    this.rubiksCube.edgePieces.get("DB"),
-                    this.rubiksCube.edgePieces.get("DR"),
-                    this.rubiksCube.edgePieces.get("DF"),
-                    this.rubiksCube.edgePieces.get("DL"),
-                );
-
-                break;
-            case "L":
-                this.edgePieces.push(
-                    this.rubiksCube.edgePieces.get("UL"),
-                    this.rubiksCube.edgePieces.get("FL"),
-                    this.rubiksCube.edgePieces.get("DL"),
-                    this.rubiksCube.edgePieces.get("LB"),
-                );
-
-                break;
-            case "R":
-                this.edgePieces.push(
-                    this.rubiksCube.edgePieces.get("UR"),
-                    this.rubiksCube.edgePieces.get("BR"),
-                    this.rubiksCube.edgePieces.get("DR"),
-                    this.rubiksCube.edgePieces.get("RF"),
-                );
-
-                break;
-            case "F":
-                this.edgePieces.push(
-                    this.rubiksCube.edgePieces.get("UF"),
-                    this.rubiksCube.edgePieces.get("RF"),
-                    this.rubiksCube.edgePieces.get("DF"),
-                    this.rubiksCube.edgePieces.get("FL"),
-                );
-
-                break;
-            case "B":
-                this.edgePieces.push(
-                    this.rubiksCube.edgePieces.get("UB"),
-                    this.rubiksCube.edgePieces.get("LB"),
-                    this.rubiksCube.edgePieces.get("DB"),
-                    this.rubiksCube.edgePieces.get("BR"),
-                );
-
-                break;
-        }
-    }
-
-    #shiftArrayRight(array) {
-        let lastValue = array[array.length - 1];
-        for (let i = 0; i < array.length; i++) {
-            let lastCurrentValue = array.length - 1 - i
-            array[array.length - i] = array[lastCurrentValue];
-        }
-        array[0] = lastValue;
-        array.pop();
-    }
-
-    #shiftArrayLeft(array) {
-        let firstValue = array[0];
-        for (let i = 0; i < array.length; i++) {
-            let firstCurrentValue = array[i + 1];
-            array[i] = firstCurrentValue;
-        }
-        array[array.length - 1] = firstValue;
+    updateCornerPieces() {
+        this.cornerPieces.length = 0;
+        this.rubiksCube.cornerPieces.forEach((cornerPiece) => {
+            cornerPiece.faces.forEach((face) => {
+                if (face === this) {
+                    console.log("found a piece match")
+                    this.cornerPieces.push(cornerPiece);
+                }
+            })
+        })
     }
 
     #rotate(start, prev, end) {
@@ -246,7 +125,6 @@ export default class Face {
                 this.edgePieces.forEach((edgePiece) => {
                     edgePiece.mesh.position.applyAxisAngle(this.direction, rotation - prev.rotation);
                     edgePiece.mesh.rotateOnWorldAxis(this.direction, rotation - prev.rotation);
-                    edgePiece.geometry.computeBoundingBox();
                 })
                 this.cornerPieces.forEach((cornerPiece) => {
                     cornerPiece.mesh.position.applyAxisAngle(this.direction, rotation - prev.rotation);
@@ -256,6 +134,37 @@ export default class Face {
             })
             .onComplete(() => {
                 this.rubiksCube.isAnimating = false
+
+                //The TWEEN result will cause rounding errors, so we make sure that the numbers are what they should be
+                this.edgePieces.forEach((edgePiece) => {
+                    let positionX = edgePiece.mesh.position.x;
+                    let positionY = edgePiece.mesh.position.y;
+                    let positionZ = edgePiece.mesh.position.z;
+
+                    edgePiece.mesh.position.x = Math.round(positionX);
+                    edgePiece.mesh.position.y = Math.round(positionY);
+                    edgePiece.mesh.position.z = Math.round(positionZ);
+                })
+                this.cornerPieces.forEach((cornerPiece) => {
+                    let positionX = cornerPiece.mesh.position.x;
+                    let positionY = cornerPiece.mesh.position.y;
+                    let positionZ = cornerPiece.mesh.position.z;
+
+                    cornerPiece.mesh.position.x = Math.round(positionX);
+                    cornerPiece.mesh.position.y = Math.round(positionY);
+                    cornerPiece.mesh.position.z = Math.round(positionZ);
+                })
+
+                this.rubiksCube.edgePieces.forEach((edgePiece) => {
+                    edgePiece.updateFaces();
+                });
+                this.rubiksCube.cornerPieces.forEach((cornerPiece) => {
+                    cornerPiece.updateFaces();
+                })
+                this.rubiksCube.faces.forEach((face) => {
+                    face.updateEdgePieces();
+                    face.updateCornerPieces();
+                })
             })
             .start();
     }
@@ -266,17 +175,6 @@ export default class Face {
         const end = {rotation: -_90Degrees};
 
         this.#rotate(start, prev, end);
-
-        this.adjacentFaces.forEach((face) => {
-            face.edgePieces.length = 0;
-            this.rubiksCube.edgePieces.forEach((edgePiece) => {
-                console.log("intersects");
-                if (edgePiece.geometry.boudingBox.intersectsPlane(face.plane)) {
-                    face.edgePieces.push(edgePiece);
-                }
-            })
-        })
-
     }
 
     rotateCounterClockwise() {
@@ -285,14 +183,5 @@ export default class Face {
         const end = {rotation: _90Degrees};
 
         this.#rotate(start, prev, end);
-
-        this.adjacentFaces.forEach((face) => {
-            face.edgePieces.length = 0;
-            this.rubiksCube.edgePieces.forEach((edgePiece) => {
-                if (edgePiece.geometry.boundingBox.intersectsPlane(face.plane)) {
-                    face.edgePieces.push(edgePiece);
-                }
-            })
-        })
     }
 }
