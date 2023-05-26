@@ -75,11 +75,6 @@ export default class RubiksCube {
         // instantiate the main Group which will be added to the scene
         this.mainGroup = new THREE.Group();
 
-        // add the 6 faces
-        this.faces.forEach((face) => {
-            this.mainGroup.add(face.mesh);
-        })
-
         // add the 6 centerpieces
         this.centerPieces.forEach((centerPiece) => {
             this.mainGroup.add(centerPiece.mesh);
