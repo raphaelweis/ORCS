@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import * as TWEEN from "@tweenjs/tween.js";
-import {CenterPiece} from "./Cublet";
 
 const _90Degrees = Math.PI / 2;
 
@@ -11,20 +10,21 @@ export default class Face {
 
     faceID;
     direction;
+    coordinates;
 
     rubiksCube;
     centerPiece;
-    edgePieces;
 
     constructor(faceID, rubiksCube) {
         this.geometry = new THREE.PlaneGeometry(2.9, 2.9);
         this.material = new THREE.MeshBasicMaterial({color: 0x000000, side: THREE.DoubleSide});
         this.mesh = new THREE.Mesh(this.geometry, this.material);
 
+        this.mesh.visible = true;
+
         this.faceID = faceID;
         this.rubiksCube = rubiksCube;
         this.centerPiece = undefined;
-        this.edgePieces = [];
 
         this.setFacePosition(faceID);
     }
@@ -33,6 +33,7 @@ export default class Face {
         switch (this.faceID) {
             case "U":
                 this.direction = new THREE.Vector3(0, 1, 0);
+                this.coordinates = {x1: -1, x2: 1, y1: -1, y2: 1, z1: 1, z2: 1};
 
                 this.mesh.lookAt(this.direction);
                 this.mesh.position.addScaledVector(this.direction, 1);
@@ -40,13 +41,7 @@ export default class Face {
                 break;
             case "D":
                 this.direction = new THREE.Vector3(0, -1, 0);
-
-                this.mesh.lookAt(this.direction);
-                this.mesh.position.addScaledVector(this.direction, 1);
-
-                break;
-            case "L":
-                this.direction = new THREE.Vector3(-1, 0, 0);
+                this.coordinates = {x1: -1, x2: 1, y1: -1, y2: 1, z1: -1, z2: -1};
 
                 this.mesh.lookAt(this.direction);
                 this.mesh.position.addScaledVector(this.direction, 1);
@@ -54,6 +49,15 @@ export default class Face {
                 break;
             case "R":
                 this.direction = new THREE.Vector3(1, 0, 0);
+                this.coordinates = {x1: 1, x2: 1, y1: -1, y2: 1, z1: -1, z2: 1};
+
+                this.mesh.lookAt(this.direction);
+                this.mesh.position.addScaledVector(this.direction, 1);
+
+                break;
+            case "L":
+                this.direction = new THREE.Vector3(-1, 0, 0);
+                this.coordinates = {x1: -1, x2: -1, y1: -1, y2: 1, z1: -1, z2: 1};
 
                 this.mesh.lookAt(this.direction);
                 this.mesh.position.addScaledVector(this.direction, 1);
@@ -61,6 +65,7 @@ export default class Face {
                 break;
             case "F":
                 this.direction = new THREE.Vector3(0, 0, 1);
+                this.coordinates = {x1: -1, x2: 1, y1: -1, y2: 1, z1: 1, z2: 1};
 
                 this.mesh.lookAt(this.direction);
                 this.mesh.position.addScaledVector(this.direction, 1);
@@ -68,6 +73,7 @@ export default class Face {
                 break;
             case "B":
                 this.direction = new THREE.Vector3(0, 0, -1);
+                this.direction = {x1: -1, x2: 1, y1: -1, y2: 1, z1: -1, z2: -1};
 
                 this.mesh.lookAt(this.direction);
                 this.mesh.position.addScaledVector(this.direction, 1);
@@ -76,42 +82,44 @@ export default class Face {
         }
     }
 
-    updateEdgePieces() {
-        let edgePieces = this.rubiksCube.edgePieces;
-        for (let i = 0; i < edgePieces.length; i++) {
-            let isOnFaceVector = new THREE.Vector3().multiplyVectors(edgePieces[i].mesh.position, this.direction);
-            if (isOnFaceVector.equals(this.mesh.position)) {
-                this.edgePieces[i] = edgePieces[i];
-            }
-        }
-    }
+    // updateEdgePieces() {
+    //     let edgesPiecesToRotate = [];
+    //
+    //     this.rubiksCube.edgePieces.forEach((edgePiece) => {
+    //         let isInFaceX = this.coordinates.x1 <= edgePiece.mesh.position.x <= this.coordinates.x2;
+    //         let isInFaceY = this.coordinates.y1 <= edgePiece.mesh.position.y <= this.coordinates.y2;
+    //         let isInFaceZ = this.coordinates.z1 <= edgePiece.mesh.position.z <= this.coordinates.z2;
+    //
+    //         if (isInFaceX && isInFaceY && isInFaceZ) {
+    //             edgesPiecesToRotate.push(edgePiece);
+    //         }
+    //     })
+    //     return edgesPiecesToRotate;
+    // }
 
-    #rotate(start, prev, end) {
+    #rotate(start, prev, end, edgePieces) {
         this.rubiksCube.isAnimating = true;
         new TWEEN.Tween(start)
             .to(end, 100)
             .onUpdate(({rotation}) => {
                 this.mesh.rotateOnWorldAxis(this.direction, rotation - prev.rotation);
                 this.centerPiece.mesh.rotateOnWorldAxis(this.direction, rotation - prev.rotation);
-                this.edgePieces.forEach((edgePiece) => {
+                edgePieces.forEach((edgePiece)=> {
                     edgePiece.mesh.position.applyAxisAngle(this.direction, rotation - prev.rotation);
                     edgePiece.mesh.rotateOnWorldAxis(this.direction, rotation - prev.rotation);
                 })
+
                 prev.rotation = rotation;
             })
             .onComplete(() => {
                 this.rubiksCube.isAnimating = false
 
-                this.rubiksCube.edgePieces.forEach((edgePiece) => {
+                edgePieces.forEach((edgePiece) => {
                     edgePiece.mesh.position.set(
                         Math.round(edgePiece.mesh.position.x),
                         Math.round(edgePiece.mesh.position.y),
                         Math.round(edgePiece.mesh.position.z)
                     )
-                })
-
-                this.rubiksCube.faces.forEach((face) => {
-                    face.updateEdgePieces();
                 })
             })
             .start();
@@ -121,15 +129,17 @@ export default class Face {
         const start = {rotation: 0};
         const prev = {rotation: 0};
         const end = {rotation: -_90Degrees};
+        // const edgePiecesToRotate = this.updateEdgePieces();
 
-        this.#rotate(start, prev, end);
+        // this.#rotate(start, prev, end, edgePiecesToRotate);
     }
 
     rotateCounterClockwise() {
         const start = {rotation: 0};
         const prev = {rotation: 0};
         const end = {rotation: _90Degrees};
+        // const edgePiecesToRotate = this.updateEdgePieces();
 
-        this.#rotate(start, prev, end);
+        // this.#rotate(start, prev, end, edgePiecesToRotate);
     }
 }

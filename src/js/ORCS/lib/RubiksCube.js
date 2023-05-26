@@ -71,15 +71,11 @@ export default class RubiksCube {
         this.cornerPieces[6] = new CornerPiece(this, this.faceD, this.faceR, this.faceF);
         this.cornerPieces[7] = new CornerPiece(this, this.faceD, this.faceF, this.faceL);
 
-        console.log(this.faceU.mesh.position);
-        console.log(this.faceU.centerPiece.mesh.position.multiply(this.faceU.direction))
-
         // instantiate the main Group which will be added to the scene
         this.mainGroup = new THREE.Group();
 
         // add the 6 faces
         this.faces.forEach((face) => {
-            face.updateEdgePieces();
             this.mainGroup.add(face.mesh);
         })
 
