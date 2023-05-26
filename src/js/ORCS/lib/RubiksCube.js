@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import Face from "./Face";
-import {CornerPiece, EdgePiece} from "./Cublet";
+import {CenterPiece, CornerPiece, EdgePiece} from "./Cublet";
 
 export default class RubiksCube {
     scene;
@@ -36,20 +36,29 @@ export default class RubiksCube {
         this.faceB = new Face("B", this);
         this.faces = [this.faceU, this.faceD, this.faceL, this.faceR, this.faceF, this.faceB];
 
+        // instantiate the 6 centerpieces - passing in their 1 initial face
+        this.centerPieces = [];
+        this.centerPieces[0] = new CenterPiece(this, this.faceU);
+        this.centerPieces[1] = new CenterPiece(this, this.faceD);
+        this.centerPieces[2] = new CenterPiece(this, this.faceL);
+        this.centerPieces[3] = new CenterPiece(this, this.faceR);
+        this.centerPieces[4] = new CenterPiece(this, this.faceF);
+        this.centerPieces[5] = new CenterPiece(this, this.faceB);
+
         // instantiate the 12 edge pieces - passing in their 2 initial faces
-        this.edgePieces = new Map();
-        this.edgePieces.set("UB", new EdgePiece(this, this.faceU, this.faceB));
-        this.edgePieces.set("UR", new EdgePiece(this, this.faceU, this.faceR));
-        this.edgePieces.set("UF", new EdgePiece(this, this.faceU, this.faceF));
-        this.edgePieces.set("UL", new EdgePiece(this, this.faceU, this.faceL));
-        this.edgePieces.set("BR", new EdgePiece(this, this.faceB, this.faceR));
-        this.edgePieces.set("RF", new EdgePiece(this, this.faceR, this.faceF));
-        this.edgePieces.set("FL", new EdgePiece(this, this.faceF, this.faceL));
-        this.edgePieces.set("LB", new EdgePiece(this, this.faceL, this.faceB));
-        this.edgePieces.set("DB", new EdgePiece(this, this.faceD, this.faceB));
-        this.edgePieces.set("DR", new EdgePiece(this, this.faceD, this.faceR));
-        this.edgePieces.set("DF", new EdgePiece(this, this.faceD, this.faceF));
-        this.edgePieces.set("DL", new EdgePiece(this, this.faceD, this.faceL));
+        this.edgePieces = [];
+        this.edgePieces[0] = new EdgePiece(this, this.faceU, this.faceB);
+        this.edgePieces[1] = new EdgePiece(this, this.faceU, this.faceR);
+        this.edgePieces[2] = new EdgePiece(this, this.faceU, this.faceF);
+        this.edgePieces[3] = new EdgePiece(this, this.faceU, this.faceL);
+        this.edgePieces[4] = new EdgePiece(this, this.faceB, this.faceR);
+        this.edgePieces[5] = new EdgePiece(this, this.faceR, this.faceF);
+        this.edgePieces[6] = new EdgePiece(this, this.faceF, this.faceL);
+        this.edgePieces[7] = new EdgePiece(this, this.faceL, this.faceB);
+        this.edgePieces[8] = new EdgePiece(this, this.faceD, this.faceB);
+        this.edgePieces[9] = new EdgePiece(this, this.faceD, this.faceR);
+        this.edgePieces[10] = new EdgePiece(this, this.faceD, this.faceF);
+        this.edgePieces[11] = new EdgePiece(this, this.faceD, this.faceL);
 
         // instantiate the 8 corner pieces - passing in their 3 initial faces
         this.cornerPieces = [];
@@ -62,32 +71,32 @@ export default class RubiksCube {
         this.cornerPieces[6] = new CornerPiece(this, this.faceD, this.faceR, this.faceF);
         this.cornerPieces[7] = new CornerPiece(this, this.faceD, this.faceF, this.faceL);
 
-        // configure for each face: the adjacent faces array, the edge pieces array, the corner pieces array.
-        this.faces.forEach((face) => {
-            face.updateEdgePieces();
-            face.updateCornerPieces();
-        })
+        console.log(this.faceU.mesh.position);
+        console.log(this.faceU.centerPiece.mesh.position.multiply(this.faceU.direction))
 
         // instantiate the main Group which will be added to the scene
         this.mainGroup = new THREE.Group();
 
         // add the 6 faces
-        this.mainGroup.add(this.faceU.faceGroup);
-        this.mainGroup.add(this.faceD.faceGroup);
-        this.mainGroup.add(this.faceL.faceGroup);
-        this.mainGroup.add(this.faceR.faceGroup);
-        this.mainGroup.add(this.faceF.faceGroup);
-        this.mainGroup.add(this.faceB.faceGroup);
+        this.faces.forEach((face) => {
+            face.updateEdgePieces();
+            this.mainGroup.add(face.mesh);
+        })
+
+        // add the 6 centerpieces
+        this.centerPieces.forEach((centerPiece) => {
+            this.mainGroup.add(centerPiece.mesh);
+        })
 
         // add the 12 edge pieces
         this.edgePieces.forEach((edgePiece) => {
             this.mainGroup.add(edgePiece.mesh);
         })
 
-        // // add the 8 corner pieces
-        for (let i = 0; i < this.cornerPieces.length; i++) {
-            this.mainGroup.add(this.cornerPieces[i].mesh);
-        }
+        // add the 8 corner pieces
+        this.cornerPieces.forEach((cornerPiece) => {
+            this.mainGroup.add(cornerPiece.mesh);
+        })
 
         this.mesh = this.mainGroup;
 
@@ -144,5 +153,4 @@ export default class RubiksCube {
             }
         }
     }
-
 }

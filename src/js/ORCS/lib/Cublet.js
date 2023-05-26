@@ -17,7 +17,6 @@ export class Cublet {
     #materials = [this.#face1Mesh, this.#face2Mesh, this.#face3Mesh, this.#face4Mesh, this.#face5Mesh, this.#face6Mesh];
 
     rubiksCube;
-    location;
 
     constructor(rubiksCube) {
         //push the meshes to the cube faces
@@ -29,7 +28,6 @@ export class Cublet {
         this.geometry.groups.push({start: 10, count: 2, materialIndex: 5});
 
         this.mesh = new THREE.Mesh(this.geometry, this.#materials);
-        this.location = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9));
 
         this.rubiksCube = rubiksCube;
     }
@@ -42,9 +40,9 @@ export class CenterPiece extends Cublet {
     constructor(rubiksCube, face) {
         super(rubiksCube);
         this.face = face;
+        this.face.centerPiece = this;
         this.direction = this.face.direction;
         this.mesh.position.addScaledVector(this.direction, 1);
-        this.location.position.addScaledVector(this.direction, 1);
     }
 }
 
@@ -56,25 +54,12 @@ export class EdgePiece extends Cublet {
         this.faces = [face1, face2];
         let direction = this.#calculateDirection();
         this.mesh.position.addScaledVector(direction, 1);
-        this.location.position.addScaledVector(direction, 1);
     }
 
     #calculateDirection() {
         return new THREE.Vector3()
             .add(this.faces[0].direction)
             .add(this.faces[1].direction);
-    }
-
-    updateFaces() {
-        this.rubiksCube.edgePieces.forEach((edgePiece) => {
-            if (this.mesh.position.equals(edgePiece.location.position)) {
-                console.log("found a face match");
-                let face1 = edgePiece.faces[0];
-                let face2 = edgePiece.faces[1];
-                this.faces[0] = face1;
-                this.faces[1] = face2;
-            }
-        })
     }
 }
 
@@ -86,7 +71,6 @@ export class CornerPiece extends Cublet {
         this.faces = [face1, face2, face3];
         let direction = this.#calculateDirection();
         this.mesh.position.addScaledVector(direction, 1);
-        this.location.position.addScaledVector(direction, 1);
     }
 
     #calculateDirection() {
@@ -94,18 +78,5 @@ export class CornerPiece extends Cublet {
             .add(this.faces[0].direction)
             .add(this.faces[1].direction)
             .add(this.faces[2].direction);
-    }
-
-    updateFaces() {
-        this.rubiksCube.cornerPieces.forEach((cornerPiece) => {
-            if (this.mesh.position.equals(cornerPiece.location.position)) {
-                let face1 = cornerPiece.faces[0];
-                let face2 = cornerPiece.faces[1];
-                let face3 = cornerPiece.faces[3];
-                this.faces[0] = face1;
-                this.faces[1] = face2;
-                this.faces[2] = face3;
-            }
-        })
     }
 }
