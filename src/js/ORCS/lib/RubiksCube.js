@@ -21,6 +21,7 @@ export default class RubiksCube {
     mesh;
     isAnimating;
 
+
     constructor(graphics) {
         this.scene = graphics.scene;
         this.camera = graphics.camera;
@@ -38,38 +39,38 @@ export default class RubiksCube {
 
         // instantiate the 6 centerpieces - passing in their 1 initial face
         this.centerPieces = [];
-        this.centerPieces[0] = new CenterPiece(this, this.faceU);
-        this.centerPieces[1] = new CenterPiece(this, this.faceD);
-        this.centerPieces[2] = new CenterPiece(this, this.faceL);
-        this.centerPieces[3] = new CenterPiece(this, this.faceR);
-        this.centerPieces[4] = new CenterPiece(this, this.faceF);
-        this.centerPieces[5] = new CenterPiece(this, this.faceB);
+        this.centerPieces[0] = new CenterPiece(this, RubiksCube.centerColors[0], this.faceU);
+        this.centerPieces[1] = new CenterPiece(this, RubiksCube.centerColors[1], this.faceD);
+        this.centerPieces[2] = new CenterPiece(this, RubiksCube.centerColors[2], this.faceL);
+        this.centerPieces[3] = new CenterPiece(this, RubiksCube.centerColors[3], this.faceR);
+        this.centerPieces[4] = new CenterPiece(this, RubiksCube.centerColors[4], this.faceF);
+        this.centerPieces[5] = new CenterPiece(this, RubiksCube.centerColors[5], this.faceB);
 
         // instantiate the 12 edge pieces - passing in their 2 initial faces
         this.edgePieces = [];
-        this.edgePieces[0] = new EdgePiece(this, this.faceU, this.faceB);
-        this.edgePieces[1] = new EdgePiece(this, this.faceU, this.faceR);
-        this.edgePieces[2] = new EdgePiece(this, this.faceU, this.faceF);
-        this.edgePieces[3] = new EdgePiece(this, this.faceU, this.faceL);
-        this.edgePieces[4] = new EdgePiece(this, this.faceB, this.faceR);
-        this.edgePieces[5] = new EdgePiece(this, this.faceR, this.faceF);
-        this.edgePieces[6] = new EdgePiece(this, this.faceF, this.faceL);
-        this.edgePieces[7] = new EdgePiece(this, this.faceL, this.faceB);
-        this.edgePieces[8] = new EdgePiece(this, this.faceD, this.faceB);
-        this.edgePieces[9] = new EdgePiece(this, this.faceD, this.faceR);
-        this.edgePieces[10] = new EdgePiece(this, this.faceD, this.faceF);
-        this.edgePieces[11] = new EdgePiece(this, this.faceD, this.faceL);
+        this.edgePieces[0] = new EdgePiece(this, RubiksCube.edgeColors[0], this.faceU, this.faceB);
+        this.edgePieces[1] = new EdgePiece(this, RubiksCube.edgeColors[1], this.faceU, this.faceR);
+        this.edgePieces[2] = new EdgePiece(this, RubiksCube.edgeColors[2], this.faceU, this.faceF);
+        this.edgePieces[3] = new EdgePiece(this, RubiksCube.edgeColors[3], this.faceU, this.faceL);
+        this.edgePieces[4] = new EdgePiece(this, RubiksCube.edgeColors[4], this.faceB, this.faceR);
+        this.edgePieces[5] = new EdgePiece(this, RubiksCube.edgeColors[5], this.faceR, this.faceF);
+        this.edgePieces[6] = new EdgePiece(this, RubiksCube.edgeColors[6], this.faceF, this.faceL);
+        this.edgePieces[7] = new EdgePiece(this, RubiksCube.edgeColors[7], this.faceL, this.faceB);
+        this.edgePieces[8] = new EdgePiece(this, RubiksCube.edgeColors[8], this.faceD, this.faceB);
+        this.edgePieces[9] = new EdgePiece(this, RubiksCube.edgeColors[9], this.faceD, this.faceR);
+        this.edgePieces[10] = new EdgePiece(this, RubiksCube.edgeColors[10], this.faceD, this.faceF);
+        this.edgePieces[11] = new EdgePiece(this, RubiksCube.edgeColors[11], this.faceD, this.faceL);
 
         // instantiate the 8 corner pieces - passing in their 3 initial faces
         this.cornerPieces = [];
-        this.cornerPieces[0] = new CornerPiece(this, this.faceU, this.faceL, this.faceB);
-        this.cornerPieces[1] = new CornerPiece(this, this.faceU, this.faceB, this.faceR);
-        this.cornerPieces[2] = new CornerPiece(this, this.faceU, this.faceR, this.faceF);
-        this.cornerPieces[3] = new CornerPiece(this, this.faceU, this.faceF, this.faceL);
-        this.cornerPieces[4] = new CornerPiece(this, this.faceD, this.faceL, this.faceB);
-        this.cornerPieces[5] = new CornerPiece(this, this.faceD, this.faceB, this.faceR);
-        this.cornerPieces[6] = new CornerPiece(this, this.faceD, this.faceR, this.faceF);
-        this.cornerPieces[7] = new CornerPiece(this, this.faceD, this.faceF, this.faceL);
+        this.cornerPieces[0] = new CornerPiece(this, RubiksCube.cornerColors[0], this.faceU, this.faceL, this.faceB);
+        this.cornerPieces[1] = new CornerPiece(this, RubiksCube.cornerColors[1], this.faceU, this.faceB, this.faceR);
+        this.cornerPieces[2] = new CornerPiece(this, RubiksCube.cornerColors[2], this.faceU, this.faceR, this.faceF);
+        this.cornerPieces[3] = new CornerPiece(this, RubiksCube.cornerColors[3], this.faceU, this.faceF, this.faceL);
+        this.cornerPieces[4] = new CornerPiece(this, RubiksCube.cornerColors[4], this.faceD, this.faceL, this.faceB);
+        this.cornerPieces[5] = new CornerPiece(this, RubiksCube.cornerColors[5], this.faceD, this.faceB, this.faceR);
+        this.cornerPieces[6] = new CornerPiece(this, RubiksCube.cornerColors[6], this.faceD, this.faceR, this.faceF);
+        this.cornerPieces[7] = new CornerPiece(this, RubiksCube.cornerColors[7], this.faceD, this.faceF, this.faceL);
 
         // instantiate the main Group which will be added to the scene
         this.mainGroup = new THREE.Group();
@@ -149,4 +150,39 @@ export default class RubiksCube {
             }
         }
     }
+
+    static centerColors = [
+        ["black", "black", "white", "black", "black", "black"],
+        ["black", "black", "black", "yellow", "black", "black"],
+        ["black", "orange", "black", "black", "black", "black"],
+        ["red", "black", "black", "black", "black", "black"],
+        ["black", "black", "black", "black", "green", "black"],
+        ["black", "black", "black", "black", "black", "blue"],
+    ];
+
+    static edgeColors = [
+        ["black", "black", "white", "black", "black", "blue"],
+        ["red", "black", "white", "black", "black", "black"],
+        ["black", "black", "white", "black", "green", "black"],
+        ["black", "orange", "white", "black", "black", "black"],
+        ["red", "black", "black", "black", "black", "blue"],
+        ["red", "black", "black", "black", "green", "black"],
+        ["black", "orange", "black", "black", "green", "black"],
+        ["black", "orange", "black", "black", "black", "blue"],
+        ["black", "black", "black", "yellow", "black", "blue"],
+        ["red", "black", "black", "yellow", "black", "black"],
+        ["black", "black", "black", "yellow", "green", "black"],
+        ["black", "orange", "black", "yellow", "black", "black"],
+    ]
+
+    static cornerColors = [
+        ["black", "orange", "white", "black", "black", "blue"],
+        ["red", "black", "white", "black", "black", "blue"],
+        ["red", "black", "white", "black", "green", "black"],
+        ["black", "orange", "white", "black", "green", "black"],
+        ["black", "orange", "black", "yellow", "black", "blue"],
+        ["red", "black", "black", "yellow", "black", "blue"],
+        ["red", "black", "black", "yellow", "green", "black"],
+        ["black", "orange", "black", "yellow", "green", "black"],
+    ]
 }

@@ -1,33 +1,26 @@
 import * as THREE from "three";
 
 export class Cublet {
-    //color palette
-    #colors = ["red", "orange", "white", "yellow", "green", "blue",];
-
-    // box geometry (cube)
-    geometry = new THREE.BoxGeometry(0.9, 0.9, 0.9);
-
-    // adding mesh to each set of 2 vertices, essentially adding a different mesh per cube face (cube = 2 triangles per face)
-    #face1Mesh = new THREE.MeshBasicMaterial({color: this.#colors[0]});
-    #face2Mesh = new THREE.MeshBasicMaterial({color: this.#colors[1]});
-    #face3Mesh = new THREE.MeshBasicMaterial({color: this.#colors[2]});
-    #face4Mesh = new THREE.MeshBasicMaterial({color: this.#colors[3]});
-    #face5Mesh = new THREE.MeshBasicMaterial({color: this.#colors[4]});
-    #face6Mesh = new THREE.MeshBasicMaterial({color: this.#colors[5]});
-    #materials = [this.#face1Mesh, this.#face2Mesh, this.#face3Mesh, this.#face4Mesh, this.#face5Mesh, this.#face6Mesh];
-
+    #geometry;
+    #materials
     rubiksCube;
 
-    constructor(rubiksCube) {
-        //push the meshes to the cube faces
-        this.geometry.groups.push({start: 0, count: 2, materialIndex: 0});
-        this.geometry.groups.push({start: 2, count: 2, materialIndex: 1});
-        this.geometry.groups.push({start: 4, count: 2, materialIndex: 2});
-        this.geometry.groups.push({start: 6, count: 2, materialIndex: 3});
-        this.geometry.groups.push({start: 8, count: 2, materialIndex: 4});
-        this.geometry.groups.push({start: 10, count: 2, materialIndex: 5});
+    constructor(rubiksCube, colors) {
+        this.#geometry = new THREE.BoxGeometry(0.9, 0.9, 0.9);
+        this.#materials = [];
 
-        this.mesh = new THREE.Mesh(this.geometry, this.#materials);
+        for (let i = 0; i < colors.length; i++) {
+            this.#materials[i] = new THREE.MeshBasicMaterial({color: colors[i]});
+        }
+
+        this.#geometry.groups.push({start: 0, count: 2, materialIndex: 0});
+        this.#geometry.groups.push({start: 2, count: 2, materialIndex: 1});
+        this.#geometry.groups.push({start: 4, count: 2, materialIndex: 2});
+        this.#geometry.groups.push({start: 6, count: 2, materialIndex: 3});
+        this.#geometry.groups.push({start: 8, count: 2, materialIndex: 4});
+        this.#geometry.groups.push({start: 10, count: 2, materialIndex: 5});
+
+        this.mesh = new THREE.Mesh(this.#geometry, this.#materials);
 
         this.rubiksCube = rubiksCube;
     }
@@ -37,8 +30,8 @@ export class CenterPiece extends Cublet {
     face;
     direction;
 
-    constructor(rubiksCube, face) {
-        super(rubiksCube);
+    constructor(rubiksCube, colors, face) {
+        super(rubiksCube, colors);
         this.face = face;
         this.face.centerPiece = this;
         this.direction = this.face.direction;
@@ -49,8 +42,8 @@ export class CenterPiece extends Cublet {
 export class EdgePiece extends Cublet {
     faces;
 
-    constructor(rubiksCube, face1, face2) {
-        super(rubiksCube);
+    constructor(rubiksCube, colors,face1, face2) {
+        super(rubiksCube, colors);
         this.faces = [face1, face2];
         let direction = this.#calculateDirection();
         this.mesh.position.addScaledVector(direction, 1);
@@ -66,8 +59,8 @@ export class EdgePiece extends Cublet {
 export class CornerPiece extends Cublet {
     faces;
 
-    constructor(rubiksCube, face1, face2, face3) {
-        super(rubiksCube);
+    constructor(rubiksCube, colors, face1, face2, face3) {
+        super(rubiksCube, colors);
         this.faces = [face1, face2, face3];
         let direction = this.#calculateDirection();
         this.mesh.position.addScaledVector(direction, 1);

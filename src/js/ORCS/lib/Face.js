@@ -4,10 +4,6 @@ import * as TWEEN from "@tweenjs/tween.js";
 const _90Degrees = Math.PI / 2;
 
 export default class Face {
-    geometry;
-    material;
-    mesh;
-
     faceID;
     direction;
     coordinates;
@@ -16,12 +12,6 @@ export default class Face {
     centerPiece;
 
     constructor(faceID, rubiksCube) {
-        this.geometry = new THREE.PlaneGeometry(2.9, 2.9);
-        this.material = new THREE.MeshBasicMaterial({color: 0x000000, side: THREE.DoubleSide});
-        this.mesh = new THREE.Mesh(this.geometry, this.material);
-
-        this.mesh.visible = true;
-
         this.faceID = faceID;
         this.rubiksCube = rubiksCube;
         this.centerPiece = undefined;
@@ -35,48 +25,30 @@ export default class Face {
                 this.direction = new THREE.Vector3(0, 1, 0);
                 this.coordinates = {x1: -1, x2: 1, y1: 1, y2: 1, z1: -1, z2: 1};
 
-                this.mesh.lookAt(this.direction);
-                this.mesh.position.addScaledVector(this.direction, 1);
-
                 break;
             case "D":
                 this.direction = new THREE.Vector3(0, -1, 0);
                 this.coordinates = {x1: -1, x2: 1, y1: -1, y2: -1, z1: -1, z2: 1};
-
-                this.mesh.lookAt(this.direction);
-                this.mesh.position.addScaledVector(this.direction, 1);
 
                 break;
             case "R":
                 this.direction = new THREE.Vector3(1, 0, 0);
                 this.coordinates = {x1: 1, x2: 1, y1: -1, y2: 1, z1: -1, z2: 1};
 
-                this.mesh.lookAt(this.direction);
-                this.mesh.position.addScaledVector(this.direction, 1);
-
                 break;
             case "L":
                 this.direction = new THREE.Vector3(-1, 0, 0);
                 this.coordinates = {x1: -1, x2: -1, y1: -1, y2: 1, z1: -1, z2: 1};
-
-                this.mesh.lookAt(this.direction);
-                this.mesh.position.addScaledVector(this.direction, 1);
 
                 break;
             case "F":
                 this.direction = new THREE.Vector3(0, 0, 1);
                 this.coordinates = {x1: -1, x2: 1, y1: -1, y2: 1, z1: 1, z2: 1};
 
-                this.mesh.lookAt(this.direction);
-                this.mesh.position.addScaledVector(this.direction, 1);
-
                 break;
             case "B":
                 this.direction = new THREE.Vector3(0, 0, -1);
                 this.coordinates = {x1: -1, x2: 1, y1: -1, y2: 1, z1: -1, z2: -1};
-
-                this.mesh.lookAt(this.direction);
-                this.mesh.position.addScaledVector(this.direction, 1);
 
                 break;
         }
@@ -117,7 +89,6 @@ export default class Face {
         new TWEEN.Tween(start)
             .to(end, 100)
             .onUpdate(({rotation}) => {
-                this.mesh.rotateOnWorldAxis(this.direction, rotation - prev.rotation);
                 this.centerPiece.mesh.rotateOnWorldAxis(this.direction, rotation - prev.rotation);
                 edgePieces.forEach((edgePiece) => {
                     edgePiece.mesh.position.applyAxisAngle(this.direction, rotation - prev.rotation);
