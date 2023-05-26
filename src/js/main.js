@@ -36,10 +36,6 @@ const graphics = {
 const rubiksCube = new RubiksCube(graphics);
 scene.add(rubiksCube.mesh);
 
-// axes visualization
-const axesHelper = new THREE.AxesHelper(3);
-scene.add(axesHelper);
-
 function animate() {
     requestAnimationFrame(animate);
     TWEEN.update();
