@@ -11,8 +11,9 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer();
 
-// setting scene background
-scene.background = new THREE.TextureLoader().load('../../scene-background.jpg');
+// setting the scene background
+// scene.background = new THREE.TextureLoader().load('../../scene-background.jpg'); // alternative to the black background
+scene.background = new THREE.Color('black');
 
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
