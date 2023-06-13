@@ -20,6 +20,7 @@ export default class RubiksCube {
     mainGroup;
     mesh;
     isAnimating;
+    recentMoves;
 
 
     constructor(graphics) {
@@ -27,6 +28,7 @@ export default class RubiksCube {
         this.camera = graphics.camera;
         this.renderer = graphics.renderer;
         this.orbitControls = graphics.orbitControls;
+        this.recentMoves = [];
 
         // instantiate the 6 cube faces - with their corresponding centerpiece
         this.faceU = new Face("U", this);
@@ -108,41 +110,74 @@ export default class RubiksCube {
                     break;
                 case "u": // U
                     this.faceU.rotateClockwise();
+                    this.recentMoves.push({object: this.faceU, method: this.faceU.rotateCounterClockwise});
                     break;
                 case "U": // U'
                     this.faceU.rotateCounterClockwise();
+                    this.recentMoves.push({object: this.faceU, method: this.faceU.rotateClockwise});
                     break;
                 case "d": // D
                     this.faceD.rotateClockwise();
+                    this.recentMoves.push({object: this.faceD, method: this.faceU.rotateCounterClockwise});
                     break;
                 case "D": // D'
                     this.faceD.rotateCounterClockwise();
+                    this.recentMoves.push({object: this.faceD, method: this.faceU.rotateClockwise});
                     break;
                 case "f": // F
                     this.faceF.rotateClockwise();
+                    this.recentMoves.push({object: this.faceF, method: this.faceU.rotateCounterClockwise});
                     break;
                 case "F": // F'
                     this.faceF.rotateCounterClockwise();
+                    this.recentMoves.push({object: this.faceF, method: this.faceU.rotateClockwise});
                     break;
                 case "b": // B
                     this.faceB.rotateClockwise();
+                    this.recentMoves.push({object: this.faceB, method: this.faceU.rotateCounterClockwise});
                     break;
                 case "B": // B'
                     this.faceB.rotateCounterClockwise();
+                    this.recentMoves.push({object: this.faceB, method: this.faceU.rotateClockwise});
                     break;
                 case "l": // L
                     this.faceL.rotateClockwise();
+                    this.recentMoves.push({object: this.faceL, method: this.faceU.rotateCounterClockwise});
                     break;
                 case "L": // L'
                     this.faceL.rotateCounterClockwise();
+                    this.recentMoves.push({object: this.faceL, method: this.faceU.rotateClockwise});
                     break;
                 case "r": // R
                     this.faceR.rotateClockwise();
+                    this.recentMoves.push({object: this.faceR, method: this.faceU.rotateCounterClockwise});
                     break;
                 case "R": // R'
                     this.faceR.rotateCounterClockwise();
+                    this.recentMoves.push({object: this.faceR, method: this.faceU.rotateClockwise});
+                    break;
+
+                case "S":
+                    this.solve();
                     break;
             }
+        }
+    }
+
+    solve() {
+        this.recentMoves.reverse().forEach((faceTurn) => {
+            this.solveCurrentMove(faceTurn);
+        })
+        this.recentMoves = [];
+    }
+
+    solveCurrentMove(faceTurn) {
+        if (this.isAnimating) {
+            setTimeout(() => {
+                this.solveCurrentMove(faceTurn);
+            }, 100);
+        } else {
+            faceTurn.method.call(faceTurn.object);
         }
     }
 
