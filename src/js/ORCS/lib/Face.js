@@ -84,17 +84,17 @@ export default class Face {
         return cornerPiecesToRotate;
     }
 
-    #rotate(start, prev, end, edgePieces, cornerPieces) {
+    #rotate(start, prev, end, speed, edgePieces, cornerPieces) {
         this.rubiksCube.isAnimating = true;
         new TWEEN.Tween(start)
-            .to(end, 100)
+            .to(end, speed)
             .onUpdate(({rotation}) => {
                 this.centerPiece.mesh.rotateOnWorldAxis(this.direction, rotation - prev.rotation);
                 edgePieces.forEach((edgePiece) => {
                     edgePiece.mesh.position.applyAxisAngle(this.direction, rotation - prev.rotation);
                     edgePiece.mesh.rotateOnWorldAxis(this.direction, rotation - prev.rotation);
                 })
-                cornerPieces.forEach((cornerPiece)=> {
+                cornerPieces.forEach((cornerPiece) => {
                     cornerPiece.mesh.position.applyAxisAngle(this.direction, rotation - prev.rotation);
                     cornerPiece.mesh.rotateOnWorldAxis(this.direction, rotation - prev.rotation);
                 })
@@ -122,23 +122,23 @@ export default class Face {
             .start();
     }
 
-    rotateClockwise() {
+    rotateClockwise(speed = 100) {
         const start = {rotation: 0};
         const prev = {rotation: 0};
         const end = {rotation: -_90Degrees};
         const edgePiecesToRotate = this.updateEdgePieces();
         const cornerPiecesToRotate = this.updateCornerPieces();
 
-        this.#rotate(start, prev, end, edgePiecesToRotate, cornerPiecesToRotate);
+        this.#rotate(start, prev, end, speed, edgePiecesToRotate, cornerPiecesToRotate);
     }
 
-    rotateCounterClockwise() {
+    rotateCounterClockwise(speed = 100) {
         const start = {rotation: 0};
         const prev = {rotation: 0};
         const end = {rotation: _90Degrees};
         const edgePiecesToRotate = this.updateEdgePieces();
         const cornerPiecesToRotate = this.updateCornerPieces();
 
-        this.#rotate(start, prev, end, edgePiecesToRotate, cornerPiecesToRotate);
+        this.#rotate(start, prev, end, speed, edgePiecesToRotate, cornerPiecesToRotate);
     }
 }

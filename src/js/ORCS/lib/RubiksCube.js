@@ -20,6 +20,7 @@ export default class RubiksCube {
     mainGroup;
     mesh;
     isAnimating;
+    isSolving;
     recentMoves;
 
 
@@ -96,11 +97,12 @@ export default class RubiksCube {
 
         this.addKeyboardControls(this.orbitControls);
         this.isAnimating = false;
+        this.isSolving = false;
     }
 
     addKeyboardControls() {
         document.onkeydown = (e) => {
-            if (this.isAnimating) {
+            if (this.isAnimating || this.isSolving) {
                 return;
             }
             switch (e.key) {
@@ -165,19 +167,21 @@ export default class RubiksCube {
     }
 
     solve() {
+        this.isSolving = true;
         this.recentMoves.reverse().forEach((faceTurn) => {
-            this.solveCurrentMove(faceTurn);
+            this.solveCurrentMove(faceTurn, 100);
         })
         this.recentMoves = [];
+        this.isSolving = false;
     }
 
-    solveCurrentMove(faceTurn) {
+    solveCurrentMove(faceTurn, speed) {
         if (this.isAnimating) {
             setTimeout(() => {
-                this.solveCurrentMove(faceTurn);
-            }, 100);
+                this.solveCurrentMove(faceTurn, speed);
+            }, speed);
         } else {
-            faceTurn.method.call(faceTurn.object);
+            faceTurn.method.call(faceTurn.object, speed);
         }
     }
 
